@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Neo API",
+    "title": "Character Management API",
     "version": "1.0.0",
     "description": "Character Management API with battle system, experience, and level progression"
   },
@@ -40,17 +40,70 @@
     "/characters": {
       "get": {
         "summary": "List all characters",
-        "description": "Returns a list of all characters",
+        "description": "Returns a paginated list of characters with optional filtering by role and status",
         "tags": ["Read APIs"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page (default: 24, max: 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 24
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Filter by character role",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["Warrior", "Thief", "Mage"]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by character status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["alive", "dead"]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Character"
+                  "type": "object",
+                  "properties": {
+                    "characters": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CharacterResponse"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
                   }
                 }
               }
@@ -60,7 +113,7 @@
       },
       "post": {
         "summary": "Create a new character",
-        "description": "Creates a new character with role-based modifiers",
+        "description": "Creates a new character with role-based default stats. Name is auto-generated if not provided.",
         "tags": ["Write APIs"],
         "requestBody": {
           "required": true,
@@ -78,23 +131,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Character"
+                  "$ref": "#/components/schemas/CharacterResponse"
                 }
               }
             }
           },
           "400": {
             "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Character ID already exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -109,7 +152,7 @@
     "/characters/{id}": {
       "get": {
         "summary": "Get a character by ID",
-        "description": "Returns a single character by ID",
+        "description": "Returns a single character by ID with calculated modifiers",
         "tags": ["Read APIs"],
         "parameters": [
           {
@@ -127,7 +170,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Character"
+                  "$ref": "#/components/schemas/CharacterResponse"
                 }
               }
             }
@@ -174,7 +217,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Character"
+                  "$ref": "#/components/schemas/CharacterResponse"
                 }
               }
             }
@@ -232,10 +275,316 @@
         }
       }
     },
+    "/characters/{id}/experience": {
+      "post": {
+        "summary": "Add experience to a character",
+        "description": "Adds experience points to a character. May trigger level up if experience threshold is reached.",
+        "tags": ["Write APIs"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["amount"],
+                "properties": {
+                  "amount": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Experience amount to add"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Experience added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "character": {
+                      "$ref": "#/components/schemas/CharacterResponse"
+                    },
+                    "leveled_up": {
+                      "type": "boolean",
+                      "description": "Whether the character leveled up"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g., amount must be positive)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Character not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/characters/{id}/damage": {
+      "post": {
+        "summary": "Deal damage to a character",
+        "description": "Reduces a character's HP by the specified damage amount",
+        "tags": ["Write APIs"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["damage"],
+                "properties": {
+                  "damage": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Damage amount"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Damage dealt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "character": {
+                      "$ref": "#/components/schemas/CharacterResponse"
+                    },
+                    "died": {
+                      "type": "boolean",
+                      "description": "Whether the character died (HP reached 0)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g., damage must be positive)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Character not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/characters/{id}/battles": {
+      "get": {
+        "summary": "Get battles for a character",
+        "description": "Returns all battles in which the specified character participated",
+        "tags": ["Read APIs"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "battles": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BattleResponse"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total number of battles"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Character not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/battles": {
+      "get": {
+        "summary": "List all battles",
+        "description": "Returns a paginated list of all recorded battles",
+        "tags": ["Read APIs"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page (default: 20, max: 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "battles": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BattleResponse"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Record a battle",
+        "description": "Records the outcome of a battle between two characters",
+        "tags": ["Write APIs"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BattleInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Battle recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BattleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g., character not found)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/swagger.json": {
       "get": {
         "summary": "Get OpenAPI specification",
-        "description": "Returns the OpenAPI specification",
+        "description": "Returns the OpenAPI specification for this API",
+        "tags": ["Documentation"],
         "responses": {
           "200": {
             "description": "Success",
@@ -253,77 +602,244 @@
   },
   "components": {
     "schemas": {
-      "Character": {
+      "CharacterResponse": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "description": "Unique identifier for the character"
           },
+          "name": {
+            "type": "string",
+            "description": "Character name"
+          },
           "role": {
             "type": "string",
             "enum": ["Warrior", "Thief", "Mage"],
-            "description": "Character role that determines modifiers"
+            "description": "Character role that determines stat growth multipliers"
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Character level"
+          },
+          "experience": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Current experience points"
           },
           "hp": {
             "type": "integer",
-            "description": "Health Points"
+            "minimum": 0,
+            "description": "Current Health Points"
+          },
+          "max_hp": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum Health Points"
           },
           "strength": {
             "type": "integer",
+            "minimum": 0,
             "description": "Strength attribute"
           },
           "dexterity": {
             "type": "integer",
+            "minimum": 0,
             "description": "Dexterity attribute"
           },
           "intelligence": {
             "type": "integer",
+            "minimum": 0,
             "description": "Intelligence attribute"
           },
-          "attack_modifier": {
+          "status": {
+            "type": "string",
+            "enum": ["alive", "dead"],
+            "description": "Character status based on HP"
+          },
+          "strength_multiplier": {
             "type": "number",
             "format": "float",
-            "description": "Attack modifier (calculated based on role)"
+            "description": "Strength growth multiplier for level-ups (Warrior: 0.80, Thief: 0.25, Mage: 0.20)"
+          },
+          "dexterity_multiplier": {
+            "type": "number",
+            "format": "float",
+            "description": "Dexterity growth multiplier for level-ups (Warrior: 0.20, Thief: 1.00, Mage: 0.20)"
+          },
+          "intelligence_multiplier": {
+            "type": "number",
+            "format": "float",
+            "description": "Intelligence growth multiplier for level-ups (Warrior: 0.00, Thief: 0.25, Mage: 1.20)"
           },
           "speed_modifier": {
             "type": "number",
             "format": "float",
-            "description": "Speed modifier (calculated based on role)"
+            "description": "Calculated speed modifier for battle turn order (Warrior: 60% dexterity + 20% intelligence, Thief: 80% dexterity, Mage: 40% dexterity + 10% strength)"
           }
         },
-        "required": ["role", "hp", "strength", "dexterity", "intelligence"]
+        "required": ["id", "name", "role", "level", "experience", "hp", "max_hp", "strength", "dexterity", "intelligence", "status"]
       },
       "CharacterInput": {
         "type": "object",
         "properties": {
-          "id": {
+          "name": {
             "type": "string",
-            "description": "Optional character ID (auto-generated if not provided)"
+            "description": "Character name (auto-generated if not provided)"
           },
           "role": {
             "type": "string",
             "enum": ["Warrior", "Thief", "Mage"],
-            "description": "Character role: Warrior (attack: 1.5x, speed: 0.8x), Thief (attack: 1.0x, speed: 1.2x), Mage (attack: 1.3x, speed: 0.9x)"
+            "description": "Character role"
           },
           "hp": {
             "type": "integer",
-            "description": "Health Points"
+            "description": "Health Points (defaults based on role if not provided)"
           },
           "strength": {
             "type": "integer",
-            "description": "Strength attribute"
+            "description": "Strength attribute (defaults based on role if not provided)"
           },
           "dexterity": {
             "type": "integer",
-            "description": "Dexterity attribute"
+            "description": "Dexterity attribute (defaults based on role if not provided)"
           },
           "intelligence": {
             "type": "integer",
-            "description": "Intelligence attribute"
+            "description": "Intelligence attribute (defaults based on role if not provided)"
           }
         },
-        "required": ["role", "hp", "strength", "dexterity", "intelligence"]
+        "required": ["role"]
+      },
+      "BattleInput": {
+        "type": "object",
+        "properties": {
+          "character1_id": {
+            "type": "string",
+            "description": "ID of the first character"
+          },
+          "character2_id": {
+            "type": "string",
+            "description": "ID of the second character"
+          },
+          "winner_id": {
+            "type": "string",
+            "description": "ID of the winning character"
+          },
+          "loser_id": {
+            "type": "string",
+            "description": "ID of the losing character"
+          },
+          "battle_log": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of battle log messages"
+          },
+          "experience_gained": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Experience points gained by the winner"
+          },
+          "leveled_up": {
+            "type": "boolean",
+            "description": "Whether the winner leveled up after gaining experience"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Battle timestamp (auto-generated if not provided)"
+          }
+        },
+        "required": ["character1_id", "character2_id", "winner_id", "loser_id"]
+      },
+      "BattleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique battle identifier"
+          },
+          "character1_id": {
+            "type": "string",
+            "description": "ID of the first character"
+          },
+          "character1_name": {
+            "type": "string",
+            "description": "Name of the first character"
+          },
+          "character2_id": {
+            "type": "string",
+            "description": "ID of the second character"
+          },
+          "character2_name": {
+            "type": "string",
+            "description": "Name of the second character"
+          },
+          "winner_id": {
+            "type": "string",
+            "description": "ID of the winning character"
+          },
+          "winner_name": {
+            "type": "string",
+            "description": "Name of the winning character"
+          },
+          "loser_id": {
+            "type": "string",
+            "description": "ID of the losing character"
+          },
+          "loser_name": {
+            "type": "string",
+            "description": "Name of the losing character"
+          },
+          "battle_log": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of battle log messages"
+          },
+          "experience_gained": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Experience points gained by the winner"
+          },
+          "leveled_up": {
+            "type": "boolean",
+            "description": "Whether the winner leveled up after gaining experience"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Battle timestamp"
+          }
+        },
+        "required": ["id", "character1_id", "character1_name", "character2_id", "character2_name", "winner_id", "winner_name", "loser_id", "loser_name", "battle_log", "experience_gained", "leveled_up", "timestamp"]
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Items per page"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages"
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"]
       },
       "Error": {
         "type": "object",
@@ -332,7 +848,8 @@
             "type": "string",
             "description": "Error message"
           }
-        }
+        },
+        "required": ["error"]
       }
     }
   }
