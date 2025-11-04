@@ -3,7 +3,7 @@
   "info": {
     "title": "Neo API",
     "version": "1.0.0",
-    "description": "API for Neo submission"
+    "description": "API for Neo submission - Character Management System"
   },
   "servers": [
     {
@@ -12,21 +12,22 @@
     }
   ],
   "paths": {
-    "/hello": {
+    "/healthcheck": {
       "get": {
-        "summary": "Say hello",
-        "description": "Returns a hello message",
+        "summary": "Health check",
+        "description": "Returns the health status of the API",
+        "tags": ["Read APIs"],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "API is healthy",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
+                    "status": {
                       "type": "string",
-                      "example": "Hello! Welcome to the Neo API"
+                      "example": "healthy"
                     }
                   }
                 }
@@ -36,16 +37,303 @@
         }
       }
     },
-    "/users": {
+    "/characters": {
       "get": {
-        "summary": "List all users",
+        "summary": "List all characters",
+        "description": "Returns a list of all characters",
+        "tags": ["Read APIs"],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Character"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new character",
+        "description": "Creates a new character with role-based modifiers",
+        "tags": ["Write APIs"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Character created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Character"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Character ID already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/characters/{id}": {
+      "get": {
+        "summary": "Get a character by ID",
+        "description": "Returns a single character by ID",
+        "tags": ["Read APIs"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Character"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Character not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a character",
+        "description": "Updates an existing character",
+        "tags": ["Write APIs"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Character updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Character"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Character not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a character",
+        "description": "Deletes a character by ID",
+        "tags": ["Write APIs"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Character deleted"
+          },
+          "404": {
+            "description": "Character not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/swagger.json": {
+      "get": {
+        "summary": "Get OpenAPI specification",
+        "description": "Returns the OpenAPI specification",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Character": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the character"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["Warrior", "Thief", "Mage"],
+            "description": "Character role that determines modifiers"
+          },
+          "hp": {
+            "type": "integer",
+            "description": "Health Points"
+          },
+          "strength": {
+            "type": "integer",
+            "description": "Strength attribute"
+          },
+          "dexterity": {
+            "type": "integer",
+            "description": "Dexterity attribute"
+          },
+          "intelligence": {
+            "type": "integer",
+            "description": "Intelligence attribute"
+          },
+          "attack_modifier": {
+            "type": "number",
+            "format": "float",
+            "description": "Attack modifier (calculated based on role)"
+          },
+          "speed_modifier": {
+            "type": "number",
+            "format": "float",
+            "description": "Speed modifier (calculated based on role)"
+          }
+        },
+        "required": ["role", "hp", "strength", "dexterity", "intelligence"]
+      },
+      "CharacterInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Optional character ID (auto-generated if not provided)"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["Warrior", "Thief", "Mage"],
+            "description": "Character role: Warrior (attack: 1.5x, speed: 0.8x), Thief (attack: 1.0x, speed: 1.2x), Mage (attack: 1.3x, speed: 0.9x)"
+          },
+          "hp": {
+            "type": "integer",
+            "description": "Health Points"
+          },
+          "strength": {
+            "type": "integer",
+            "description": "Strength attribute"
+          },
+          "dexterity": {
+            "type": "integer",
+            "description": "Dexterity attribute"
+          },
+          "intelligence": {
+            "type": "integer",
+            "description": "Intelligence attribute"
+          }
+        },
+        "required": ["role", "hp", "strength", "dexterity", "intelligence"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
           }
         }
       }
     }
   }
 }
-  

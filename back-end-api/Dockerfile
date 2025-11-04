@@ -1,7 +1,7 @@
 FROM golang:1.23-alpine AS builder
 WORKDIR /app
 COPY . .
-RUN go build -o server main.go
+RUN go build -o server .
 
 FROM alpine:3.19
 RUN apk update && apk upgrade --no-cache && apk add --no-cache ca-certificates wget
