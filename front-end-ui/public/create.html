@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Character - Neo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+        }
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .submit-button {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(81, 207, 102, 0.4);
+        }
+        .submit-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .random-button {
+            background: linear-gradient(135deg, #ffd43b 0%, #fcc419 100%);
+            color: #333;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+        .random-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 212, 59, 0.4);
+        }
+        .error {
+            color: #e74c3c;
+            background: #fee;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .success {
+            color: #51cf66;
+            background: #d3f9d8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .success-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .view-button {
+            background: linear-gradient(135deg, #339af0 0%, #228be6 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .view-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(51, 154, 240, 0.4);
+        }
+        .role-info {
+            background: #e7f5ff;
+            border-left: 4px solid #339af0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #1971c2;
+        }
+        .stats-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+        .stats-preview.show {
+            display: block;
+        }
+        .stats-preview h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .stat-item {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Create Character</h1>
+            <a href="index.html" class="back-button">← Home</a>
+        </div>
+
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+
+        <form id="character-form" onsubmit="createCharacter(event)">
+            <div class="form-group">
+                <label for="name">Name *</label>
+                <input type="text" id="name" name="name" required placeholder="Enter character name">
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role *</label>
+                <select id="role" name="role" required onchange="updateRoleInfo()">
+                    <option value="">Select a role</option>
+                    <option value="Warrior">Warrior</option>
+                    <option value="Thief">Thief</option>
+                    <option value="Mage">Mage</option>
+                </select>
+                <div id="role-info" class="role-info" style="display: none;"></div>
+                <div id="stats-preview" class="stats-preview"></div>
+            </div>
+
+            <button type="submit" class="submit-button">Create Character</button>
+            <button type="button" class="random-button" onclick="createRandomCharacter()">🎲 Create Random Character</button>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+        let createdCharacterId = null;
+
+        const roleInfo = {
+            'Warrior': 'Level-up: +80% strength, +20% dexterity',
+            'Thief': 'Level-up: +25% strength, +100% dexterity, +25% intelligence',
+            'Mage': 'Level-up: +20% strength, +20% dexterity, +120% intelligence'
+        };
+
+        const roleDefaults = {
+            'Warrior': { hp: 480, strength: 100, dexterity: 60, intelligence: 40 },
+            'Thief': { hp: 360, strength: 60, dexterity: 85, intelligence: 70 },
+            'Mage': { hp: 320, strength: 40, dexterity: 60, intelligence: 90 }
+        };
+
+        const randomNames = [
+            'Aragorn', 'Gandalf', 'Legolas', 'Gimli', 'Frodo', 'Samwise', 'Merry', 'Pippin',
+            'Conan', 'Kull', 'Thoth-Amon', 'Belit', 'Valeria', 'Red Sonja', 'Solomon Kane',
+            'Elric', 'Corum', 'Hawkmoon', 'Dorian Hawkmoon', 'Erekose', 'Melnibone',
+            'Drizzt', 'Artemis', 'Wulfgar', 'Bruenor', 'Catti-brie', 'Regis',
+            'Raistlin', 'Caramon', 'Tanis', 'Sturm', 'Flint', 'Tasslehoff',
+            'Gandalf', 'Saruman', 'Sauron', 'Galadriel', 'Elrond', 'Aragorn'
+        ];
+
+        function updateRoleInfo() {
+            const roleSelect = document.getElementById('role');
+            const roleInfoDiv = document.getElementById('role-info');
+            const statsPreview = document.getElementById('stats-preview');
+            const selectedRole = roleSelect.value;
+
+            if (selectedRole && roleInfo[selectedRole]) {
+                roleInfoDiv.textContent = roleInfo[selectedRole];
+                roleInfoDiv.style.display = 'block';
+
+                const defaults = roleDefaults[selectedRole];
+                statsPreview.innerHTML = `
+                    <h3>Default Stats for ${selectedRole}:</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">HP: <span class="stat-value">${defaults.hp}</span></div>
+                        <div class="stat-item">Strength: <span class="stat-value">${defaults.strength}</span></div>
+                        <div class="stat-item">Dexterity: <span class="stat-value">${defaults.dexterity}</span></div>
+                        <div class="stat-item">Intelligence: <span class="stat-value">${defaults.intelligence}</span></div>
+                    </div>
+                `;
+                statsPreview.classList.add('show');
+            } else {
+                roleInfoDiv.style.display = 'none';
+                statsPreview.classList.remove('show');
+            }
+        }
+
+        function getRandomName() {
+            return randomNames[Math.floor(Math.random() * randomNames.length)];
+        }
+
+        function getRandomRole() {
+            const roles = ['Warrior', 'Thief', 'Mage'];
+            return roles[Math.floor(Math.random() * roles.length)];
+        }
+
+        function createRandomCharacter() {
+            const nameInput = document.getElementById('name');
+            const roleSelect = document.getElementById('role');
+
+            nameInput.value = getRandomName();
+            roleSelect.value = getRandomRole();
+            updateRoleInfo();
+
+            document.getElementById('character-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+
+        async function createCharacter(event) {
+            event.preventDefault();
+
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            const submitButton = event.target.querySelector('button[type="submit"]');
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const name = document.getElementById('name').value;
+            const role = document.getElementById('role').value;
+
+            if (!name || !role) {
+                errorDiv.textContent = 'Please fill in all required fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const defaults = roleDefaults[role];
+            const formData = {
+                name: name,
+                role: role,
+                hp: defaults.hp,
+                strength: defaults.strength,
+                dexterity: defaults.dexterity,
+                intelligence: defaults.intelligence
+            };
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating...';
+
+            try {
+                const response = await fetch(`${API_URL}/characters`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create character');
+                }
+
+                const character = await response.json();
+                createdCharacterId = character.id;
+
+                successDiv.innerHTML = `
+                    <div>Character "${character.name}" created successfully!</div>
+                    <div class="success-actions">
+                        <a href="detail.html?id=${character.id}" class="view-button">View Character</a>
+                        <button onclick="document.getElementById('character-form').reset(); document.getElementById('success').style.display='none'; createdCharacterId = null;" class="view-button" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);">Create Another</button>
+                    </div>
+                `;
+                successDiv.style.display = 'block';
+
+            } catch (error) {
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.style.display = 'block';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Create Character';
+            }
+        }
+
+    </script>
+</body>
+</html>
