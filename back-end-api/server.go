@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"neo-submission/back-end-api/models"
+	"character-api/models"
 )
 
 // Server holds the API server and its dependencies

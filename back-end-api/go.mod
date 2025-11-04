@@ -1,4 +1,4 @@
-module neo-submission/back-end-api
+module character-api
 
 go 1.23
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "Neo API",
     "version": "1.0.0",
-    "description": "API for Neo submission - Character Management System"
+    "description": "Character Management API with battle system, experience, and level progression"
   },
   "servers": [
     {

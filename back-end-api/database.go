@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"neo-submission/back-end-api/models"
+	"character-api/models"
 )
 
 // Database represents the in-memory database for characters and battles

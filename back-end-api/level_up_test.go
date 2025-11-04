@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"neo-submission/back-end-api/models"
+	"character-api/models"
 )
 
 // TestWarriorLevelUp tests level up for Warrior role
