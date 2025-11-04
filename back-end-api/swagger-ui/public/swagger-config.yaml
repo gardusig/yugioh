@@ -1,0 +1,5 @@
+url: "http://back-end-api:8080/swagger.json"
+deepLinking: true
+displayRequestDuration: true
+docExpansion: "list"
+

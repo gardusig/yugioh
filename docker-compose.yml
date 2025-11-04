@@ -1,0 +1,45 @@
+services:
+  back-end-api:
+    build:
+      context: ./back-end-api
+      dockerfile: Dockerfile
+    container_name: neo-backend-api
+    ports:
+      - "8080:8080"
+    networks:
+      - neo-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/hello"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  swagger-ui:
+    build:
+      context: ./back-end-api/swagger-ui
+      dockerfile: Dockerfile
+    container_name: neo-swagger-ui
+    ports:
+      - "8081:80"
+    depends_on:
+      - back-end-api
+    networks:
+      - neo-network
+
+  front-end-ui:
+    build:
+      context: ./front-end-ui
+      dockerfile: Dockerfile
+    container_name: neo-frontend-ui
+    ports:
+      - "8082:80"
+    depends_on:
+      - back-end-api
+    networks:
+      - neo-network
+
+networks:
+  neo-network:
+    driver: bridge
+
