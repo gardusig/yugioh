@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yu-Gi-Oh! Card Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            color: #1a1a2e;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            padding: 20px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px solid #eee;
+            color: #666;
+        }
+
+        .stats p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>⚡ Yu-Gi-Oh! ⚡</h1>
+            <p>Card Database & Deck Collection</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="cards.html" class="nav-btn">Browse All Cards (001-900)</a>
+            <a href="decks.html" class="nav-btn">View Decks & Search</a>
+        </div>
+
+        <div class="stats">
+            <p><strong>900</strong> Cards from The Sacred Cards</p>
+            <p>Character Decks Available</p>
+            <p>Card Relationships & Synergies</p>
+        </div>
+    </div>
+</body>
+</html>

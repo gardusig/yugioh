@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .deck-info {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .deck-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .deck-meta {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .deck-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .deck-stats {
+            display: flex;
+            gap: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .card-info {
+            padding: 15px;
+        }
+
+        .card-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="decks.html" class="back-link">← Back to Decks</a>
+        
+        <div id="loading" style="color: white; text-align: center; padding: 50px;">
+            Loading deck details...
+        </div>
+
+        <div id="deck-content" style="display: none;">
+            <div id="deck-info" class="deck-info"></div>
+            <div id="cards-grid" class="cards-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+        const urlParams = new URLSearchParams(window.location.search);
+        const deckId = urlParams.get('id');
+
+        async function loadDeck() {
+            try {
+                const response = await fetch(`${API_URL}/decks/${deckId}`);
+                const deck = await response.json();
+
+                if (response.ok) {
+                    displayDeck(deck);
+                } else {
+                    document.getElementById('loading').textContent = 'Deck not found';
+                }
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Network error';
+            }
+        }
+
+        function displayDeck(deck) {
+            const deckInfo = document.getElementById('deck-info');
+            const owner = deck.character_name || 'Unknown';
+            const archetype = deck.archetype || 'Unknown';
+
+            deckInfo.innerHTML = `
+                <h1 class="deck-title">${deck.name}</h1>
+                <div class="deck-meta">
+                    <strong>Owner:</strong> ${owner} | 
+                    <strong>Type:</strong> ${archetype} |
+                    ${deck.is_preset ? '<span style="background: #667eea; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8em;">Character Deck</span>' : ''}
+                </div>
+                <div class="deck-description">${deck.description || 'No description available'}</div>
+                <div class="deck-stats">
+                    <div class="stat">
+                        <div class="stat-label">Total Cards</div>
+                        <div class="stat-value">${deck.cards.length}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Total Cost</div>
+                        <div class="stat-value">${deck.total_cost}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Max Cost</div>
+                        <div class="stat-value">${deck.max_cost}</div>
+                    </div>
+                </div>
+            `;
+
+            const cardsGrid = document.getElementById('cards-grid');
+            cardsGrid.innerHTML = '';
+
+            deck.cards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.innerHTML = `
+                    <img src="${card.image || 'https://via.placeholder.com/200x250?text=Card'}" 
+                         alt="${card.name}" 
+                         class="card-image"
+                         onerror="this.src='https://via.placeholder.com/200x250?text=Card+Image'">
+                    <div class="card-info">
+                        <div class="card-name">${card.name}</div>
+                        <div class="card-stats">
+                            <span>ATK: ${card.attack_points}</span>
+                            <span>DEF: ${card.defense_points}</span>
+                            <span>Cost: ${card.cost}</span>
+                        </div>
+                    </div>
+                `;
+                cardsGrid.appendChild(cardElement);
+            });
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('deck-content').style.display = 'block';
+        }
+
+        if (deckId) {
+            loadDeck();
+        } else {
+            document.getElementById('loading').textContent = 'Invalid deck ID';
+        }
+    </script>
+</body>
+</html>
+

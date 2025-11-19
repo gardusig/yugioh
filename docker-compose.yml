@@ -1,45 +1,54 @@
 services:
-  back-end-api:
+  database:
+    image: postgres:16-alpine
+    container_name: yugioh-database
+    environment:
+      POSTGRES_USER: yugioh_user
+      POSTGRES_PASSWORD: yugioh_password
+      POSTGRES_DB: yugioh_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - yugioh-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yugioh_user -d yugioh_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
     build:
-      context: ./back-end-api
+      context: ./backend
       dockerfile: Dockerfile
-    container_name: neo-backend-api
+    container_name: yugioh-backend
     ports:
       - "8080:8080"
-    networks:
-      - neo-network
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/healthcheck"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
-  swagger-ui:
-    build:
-      context: ./back-end-api/swagger-ui
-      dockerfile: Dockerfile
-    container_name: neo-swagger-ui
-    ports:
-      - "8081:80"
+    environment:
+      DATABASE_URL: postgres://yugioh_user:yugioh_password@database:5432/yugioh_db?sslmode=disable
     depends_on:
-      - back-end-api
+      database:
+        condition: service_healthy
     networks:
-      - neo-network
+      - yugioh-network
 
-  front-end-ui:
+  frontend:
     build:
-      context: ./front-end-ui
+      context: ./frontend
       dockerfile: Dockerfile
-    container_name: neo-frontend-ui
+    container_name: yugioh-frontend
     ports:
       - "8082:80"
     depends_on:
-      - back-end-api
+      - backend
     networks:
-      - neo-network
+      - yugioh-network
 
 networks:
-  neo-network:
+  yugioh-network:
     driver: bridge
+
+volumes:
+  postgres_data:
 
