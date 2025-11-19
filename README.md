@@ -1,25 +1,24 @@
-# Character Management System
+# Yu-Gi-Oh! The Sacred Cards Database
 
-A full-stack character management application with battle mechanics, experience systems, and level progression. Built with Go backend, Swagger UI documentation, and a modern web interface.
+A full-stack application for browsing all 900 cards and character decks from Yu-Gi-Oh! The Sacred Cards. Built with Go backend, PostgreSQL database, and a modern web interface.
 
 ## Features
 
-- **Character Management**: Create, update, delete, and view characters with detailed stats
-- **Role System**: Three unique character roles (Warrior, Thief, Mage) with role-specific stat growth
-- **Experience & Leveling**: Exponential experience system with automatic level-ups
-- **Battle System**: Turn-based combat with speed-based turn order
-- **Battle History**: Track all battles with detailed logs and outcomes
-- **Filtering & Pagination**: Filter characters by role/status with paginated views
+- **Card Browsing**: Browse all 900 cards (001-900) from Yu-Gi-Oh! The Sacred Cards with pagination
+- **Deck Viewing**: View all character decks with detailed information
+- **Card Details**: View complete card information including attributes, race, level, attack/defense, cost, and rarity
+- **Deck Details**: View full deck compositions with all 40 cards
+- **Pagination**: Efficient pagination for both cards and decks
 
 ## Prerequisites
 
-- **Docker Desktop** - Install via Homebrew: `brew install --cask docker`
-- **Go 1.23+** (optional) - For local development: `brew install go`
+- **Docker Desktop** - Required for running the application
+- **Go 1.23+** (optional) - For local development
 
 ## Quick Start
 
 ```bash
-# Start all services (backend API, Swagger UI, frontend)
+# Start all services (database, API, frontend)
 docker-compose up --build
 
 # Stop services
@@ -30,169 +29,117 @@ docker-compose down
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Front-end UI** | http://localhost:8082 | Web interface for character management and battles |
-| **Swagger UI** | http://localhost:8081 | Interactive API documentation |
-| **Back-end API** | http://localhost:8080 | REST API endpoint |
+| **Frontend** | http://localhost:8082 | Web interface for card browsing and deck viewing |
+| **API** | http://localhost:8080 | REST API endpoint |
+| **Swagger UI** | http://localhost:8080/swagger | Interactive API documentation |
+| **Database** | localhost:5432 | PostgreSQL database |
 
-## Character System
-
-### Character Creation
-
-Characters can be created with:
-- **Name**: Custom name or randomly generated
-- **Role**: Warrior, Thief, or Mage
-- **Initial Stats**: Automatically set based on role
-
-### Experience & Leveling
-
-- Characters start at **level 1** with **0 experience**
-- Experience requirements grow exponentially (base: 100, multiplier: 1.5 per level)
-- Maximum level: **100**
-- On level up:
-  - HP is restored to maximum
-  - MaxHP increases by 10%
-  - Stats improve based on role multipliers
-
-### Character Roles & Level-Up Multipliers
-
-Each role has unique stat growth when leveling up:
-
-| Role | Strength | Dexterity | Intelligence |
-|------|----------|-----------|--------------|
-| **Warrior** | +80% | +20% | +0% |
-| **Thief** | +25% | +100% | +25% |
-| **Mage** | +20% | +20% | +120% |
-
-### Battle System
-
-- **Turn-based combat**: Each battle consists of a single turn
-- **Speed-based turn order**: Character with higher speed modifier attacks first
-- **Speed modifiers**:
-  - Warrior: 60% dexterity + 20% intelligence
-  - Thief: 80% dexterity
-  - Mage: 40% dexterity + 10% strength
-- **Experience rewards**: Winners gain experience based on opponent's level
-- **Battle history**: All battles are recorded with detailed logs
-
-## API Endpoints
-
-### Read Operations
-
-- `GET /healthcheck` - API health status
-- `GET /characters` - List all characters (supports pagination and filters)
-  - Query params: `page`, `limit`, `role`, `status`
-- `GET /characters/{id}` - Get character by ID
-- `GET /battles` - List all battles (supports pagination)
-  - Query params: `page`, `limit`
-- `GET /characters/{id}/battles` - Get battles for a specific character
-
-### Write Operations
-
-- `POST /characters` - Create new character
-- `PUT /characters/{id}` - Update character
-- `DELETE /characters/{id}` - Delete character
-- `POST /characters/{id}/experience` - Add experience (may trigger level up)
-- `POST /characters/{id}/damage` - Deal damage to character
-- `POST /battles` - Record a battle outcome
-
-### API Documentation
-
-Visit http://localhost:8081 for interactive Swagger UI documentation with full endpoint details, request/response schemas, and the ability to test endpoints directly.
-
-## Development
-
-### Project Structure
+## Project Structure
 
 ```
 .
-├── back-end-api/          # Go backend API
-│   ├── models/            # Data models (Character, Battle, Role, Modifiers)
-│   ├── docs/              # Swagger/OpenAPI documentation
-│   ├── main.go            # Application entry point
-│   ├── server.go          # HTTP server and route handlers
-│   ├── database.go        # In-memory database implementation
-│   └── *_test.go          # Unit tests
-├── front-end-ui/          # Frontend web interface
-│   └── public/            # HTML, CSS, JavaScript files
-└── docker-compose.yml     # Service orchestration
+├── backend/               # Go backend API
+│   ├── api/              # HTTP handlers
+│   ├── database/         # Database repositories and migrations
+│   ├── models/           # Data models (Card, Deck)
+│   ├── main.go          # Application entry point
+│   └── Dockerfile       # Backend container definition
+├── frontend/             # Frontend web interface
+│   ├── public/          # HTML, CSS, JavaScript files
+│   └── Dockerfile       # Frontend container definition
+└── docker-compose.yml    # Service orchestration
 ```
 
-### Run API Locally
+## API Endpoints
+
+All endpoints are publicly accessible - no authentication required.
+
+### Cards
+- `GET /cards` - List all cards with pagination
+  - Query params: `page` (default: 1), `limit` (default: 24, max: 100)
+  - Returns: `{ "cards": [...], "pagination": {...} }`
+- `GET /cards/{id}` - Get card by ID with full details
+
+### Swagger
+- `GET /swagger` - Swagger UI for interactive API documentation
+- `GET /swagger.json` - OpenAPI 3.0 specification
+
+### Decks
+- `GET /decks` - List all decks with pagination
+  - Query params: `page` (default: 1), `limit` (default: 20, max: 100), `archetype`, `preset` (true/false)
+  - Returns: Deck summaries with name, description, character_name, archetype, card_count, total_cost, max_cost
+- `GET /decks/{id}` - Get deck by ID with full card details
+
+## Database
+
+The application uses PostgreSQL with the following tables:
+
+### Cards Table
+- `id` - Card number (001-900)
+- `name` - Card name
+- `description` - Card description
+- `image` - Card image URL
+- `type` - Monster, Spell, or Trap
+- `attribute` - For monsters: Dark, Light, Earth, Water, Fire, Wind, Divine
+- `race` - For monsters: Dragon, Spellcaster, Warrior, etc.
+- `level` - Monster level (0 for Spell/Trap)
+- `attack_points` - Attack points
+- `defense_points` - Defense points
+- `cost` - Card cost
+- `rarity` - Common, Rare, Super Rare, Ultra Rare, etc.
+
+### Decks Table
+- `id` - Deck ID
+- `name` - Deck name
+- `description` - Deck description
+- `character_name` - Character who uses this deck (e.g., "Weevil Underwood", "Mako Tsunami")
+- `archetype` - Deck archetype/style (e.g., "Insect", "Fish", "Dragon")
+- `max_cost` - Maximum total cost for the deck
+- `is_preset` - Whether this is a preset character deck
+
+### Deck Cards Table
+- `deck_id` - Reference to deck
+- `card_id` - Reference to card
+- `position` - Position in deck (0-39)
+
+## Database Migrations
+
+Migrations are automatically run on backend startup. They are located in `backend/database/migrations/`:
+- `001_initial_schema.sql` - Creates cards, decks, and deck_cards tables
+- `002_seed_cards.sql` - Seeds all 900 cards (001-900) from The Sacred Cards
+- `003_seed_decks.sql` - Seeds preset character decks (Weevil, Mako, Kaiba, Yugi, Joey, Rex, etc.)
+
+## Frontend Pages
+
+- **Home** (`index.html`) - Landing page with navigation to cards and decks
+- **Cards** (`cards.html`) - Browse all 900 cards with pagination
+- **Decks** (`decks.html`) - View and search decks, filter by archetype
+- **Deck Detail** (`deck-detail.html`) - View full deck details with all cards
+
+## Development
+
+### Run Backend Locally
 
 ```bash
-cd back-end-api
+cd backend
 go run main.go
 ```
 
 The API will be available at http://localhost:8080
 
-### Run Tests
+### Database Migrations
 
-```bash
-cd back-end-api
-
-# Run all unit tests
-go test -v
-
-# Run tests with coverage
-go test -v -cover
-
-# Run specific test
-go test -v -run TestServerHealthCheck
-
-# Generate coverage report
-go test -coverprofile=coverage.out
-go tool cover -html=coverage.out
-```
-
-### Test Coverage
-
-The project includes comprehensive unit tests covering:
-- API endpoints and handlers
-- Database operations (CRUD, pagination, filtering)
-- Character level-up mechanics
-- Experience system
-- Battle recording and retrieval
-- Speed modifier calculations
-- Damage dealing
-- Edge cases and error handling
-
-## Architecture
-
-### Backend
-
-- **Language**: Go 1.23+
-- **Database**: In-memory map with `sync.RWMutex` for thread safety
-- **API**: RESTful HTTP API with JSON responses
-- **CORS**: Enabled for cross-origin requests
-- **Documentation**: OpenAPI 3.0 specification
-
-### Frontend
-
-- **Technology**: Vanilla HTML, CSS, JavaScript
-- **Features**: 
-  - Multi-page navigation
-  - Character creation and management
-  - Battle simulation
-  - Battle history with pagination
-  - Character filtering
-  - Responsive design
+Migrations are automatically run on backend startup. The migration system reads all `.sql` files in `backend/database/migrations/` and executes them in numerical order (001, 002, 003, etc.).
 
 ## Troubleshooting
 
 ### Common Issues
 
 - **Docker not running**: Start Docker Desktop application
-- **Port conflicts**: Modify ports in `docker-compose.yml` if 8080, 8081, or 8082 are in use
+- **Port conflicts**: Modify ports in `docker-compose.yml` if 8080 or 8082 are in use
 - **View logs**: `docker-compose logs -f [service-name]`
 - **Rebuild containers**: `docker-compose up --build --force-recreate`
 - **Clean restart**: `docker-compose down && docker-compose up --build`
-
-### API Errors
-
-- **404 Not Found**: Check endpoint URL and HTTP method
-- **400 Bad Request**: Verify request body format and required fields
-- **CORS errors**: Ensure backend is running and CORS headers are set
 
 ## License
 
