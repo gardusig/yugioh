@@ -1,11 +1,11 @@
 # Yu-Gi-Oh! The Sacred Cards Database
 
-![Backend Coverage](https://img.shields.io/badge/backend%20coverage-83%-yellow)
+![Backend Coverage](https://img.shields.io/badge/backend%20coverage-98%-yellow)
 ![Backend Tests](https://img.shields.io/badge/backend%20tests-passing-brightgreen)
 ![Frontend Coverage](https://img.shields.io/badge/frontend%20coverage-100%25-brightgreen)
 ![Frontend Tests](https://img.shields.io/badge/frontend%20tests-passing-brightgreen)
 
-A full-stack application for browsing all 900 cards and character decks from Yu-Gi-Oh! The Sacred Cards. Built with Java Spring Boot backend, PostgreSQL database, and a modern web interface.
+A full-stack application for browsing all 900 cards and character decks from Yu-Gi-Oh! The Sacred Cards. Built with **Java Spring Boot** backend, **PostgreSQL** database, and a modern **React + Tailwind CSS** frontend, all containerized with **Docker**.
 
 ## Features
 
@@ -19,9 +19,11 @@ A full-stack application for browsing all 900 cards and character decks from Yu-
 
 ## Prerequisites
 
-- **Docker Desktop** - Required for running the application
-- **Java 17+** (optional) - For local development
-- **Maven 3.9+** (optional) - For local development
+- **Docker Desktop** - Required for running the application (all services are containerized)
+- **Java 17+** (optional) - For local backend development
+- **Maven 3.9+** (optional) - For local backend development
+- **Node.js 20+** (optional) - For local frontend development
+- **npm** (optional) - For local frontend development
 
 ## Quick Start
 
@@ -48,12 +50,14 @@ Once the services are running, you can access:
 
 #### **Frontend Web UI** 🌐
 - **URL**: http://localhost:8082
-- **Description**: Main web interface for browsing cards and decks
+- **Description**: React + Tailwind CSS web interface for browsing cards and decks
 - **Features**:
   - Browse all 900 cards with pagination
   - View character decks
   - Search and filter decks by archetype
   - View detailed deck compositions
+  - Modern, responsive UI built with Tailwind CSS
+  - Client-side routing with React Router
 
 #### **Swagger UI** 📚
 - **URL**: http://localhost:8080/swagger-ui.html
@@ -163,8 +167,15 @@ To generate larger SQL imports (e.g., all 900 cards), run `crawl_cards.py` to pr
 │   │   └── db/migration/             # Flyway database migrations
 │   ├── pom.xml                      # Maven dependencies
 │   └── Dockerfile                   # Backend container definition
-├── frontend/                        # Frontend web interface
-│   ├── public/                      # HTML, CSS, JavaScript files
+├── frontend/                        # React + Tailwind CSS frontend
+│   ├── src/                         # React source code
+│   │   ├── pages/                   # Page components
+│   │   ├── components/              # Reusable components
+│   │   └── api/                     # API integration layer
+│   ├── public/                      # Static assets
+│   ├── package.json                 # Node.js dependencies
+│   ├── vite.config.js               # Vite build configuration
+│   ├── tailwind.config.js           # Tailwind CSS configuration
 │   └── Dockerfile                   # Frontend container definition
 ├── scripts/                         # Utility scripts and tools
 │   ├── crawl_cards.py               # Card data crawler
@@ -302,8 +313,8 @@ Before pushing code, you can run the same checks that GitHub Actions will run:
 ```
 
 This script will:
-- **Backend**: Check for unused imports (Spotless) and run unit tests (using mocks, no database required)
-- **Frontend**: Install dependencies, build check, run unit tests, and check for unused dependencies
+- **Backend**: Check for unused imports (Spotless Maven plugin) and run unit tests (using Mockito mocks, no database required)
+- **Frontend**: Install dependencies, build check (Vite), run unit tests (Vitest), and check for unused dependencies
 - **Badges**: Automatically update README badges with current test status and coverage percentages
 
 **Note**: All tests use mocks and don't require a running database. The README badges will be updated with the current test results and coverage percentages after all checks complete.
@@ -319,6 +330,18 @@ The API will be available at http://localhost:8080
 
 **Note**: Make sure PostgreSQL is running and accessible. Update `application.properties` with your database credentials if needed.
 
+### Run Frontend Locally
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will be available at http://localhost:3000 (Vite default port)
+
+**Note**: The frontend will proxy API requests to `http://localhost:8080` as configured in `vite.config.js`.
+
 ### Build Backend
 
 ```bash
@@ -327,6 +350,16 @@ mvn clean package
 ```
 
 The JAR file will be created in `target/yugioh-api-1.0.0.jar`
+
+### Build Frontend
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+The production build will be created in `frontend/dist/` directory, ready to be served by a web server or Docker container.
 
 ### Database Migrations
 
@@ -367,11 +400,36 @@ If Swagger UI doesn't load:
 
 ## Technology Stack
 
-- **Backend**: Java 17, Spring Boot 3.2.0, Spring Data JPA, Springdoc OpenAPI (Swagger)
-- **Database**: PostgreSQL 16
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Containerization**: Docker, Docker Compose
-- **Database Migrations**: Flyway
+### Backend
+- **Java 17** - Programming language
+- **Spring Boot 3.2.0** - Application framework
+- **Spring Data JPA** - Database access layer
+- **Springdoc OpenAPI** - API documentation (Swagger)
+- **Maven** - Build tool and dependency management
+- **Flyway** - Database migrations
+
+### Frontend
+- **React 18** - UI library
+- **React Router 6** - Client-side routing
+- **Tailwind CSS 3** - Utility-first CSS framework
+- **Vite 5** - Build tool and development server
+- **Vitest** - Unit testing framework
+- **React Testing Library** - Component testing utilities
+
+### Database
+- **PostgreSQL 16** - Relational database
+
+### DevOps & Infrastructure
+- **Docker** - Containerization
+- **Docker Compose** - Multi-container orchestration
+- **GitHub Actions** - CI/CD pipeline
+
+### Testing
+- **JUnit 5** - Backend unit testing
+- **Mockito** - Backend mocking framework
+- **Vitest** - Frontend unit testing
+- **JaCoCo** - Backend code coverage
+- **Vitest Coverage** - Frontend code coverage
 
 ## License
 

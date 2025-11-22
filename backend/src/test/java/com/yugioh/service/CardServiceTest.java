@@ -217,4 +217,46 @@ class CardServiceTest {
         assertThat(result.getContent()).hasSize(3);
         verify(cardRepository).findAll(pageRequest);
     }
+
+    @Test
+    @DisplayName("Should handle startId filter with negative value")
+    void getAllCards_WithNegativeStartId_ReturnsAllCards() {
+        // Given
+        int page = 1;
+        int limit = 24;
+        Integer negativeStartId = -1;
+        PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+        Page<Card> cardPage = new PageImpl<>(testCards, pageRequest, 100);
+
+        // When startId is negative, it should call findAll without Specification
+        when(cardRepository.findAll(any(PageRequest.class))).thenReturn(cardPage);
+
+        // When
+        Page<Card> result = cardService.getAllCards(page, limit, negativeStartId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(3);
+        verify(cardRepository).findAll(pageRequest);
+    }
+
+    @Test
+    @DisplayName("Should handle startId filter with null value")
+    void getAllCards_WithNullStartId_ReturnsAllCards() {
+        // Given
+        int page = 1;
+        int limit = 24;
+        PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+        Page<Card> cardPage = new PageImpl<>(testCards, pageRequest, 100);
+
+        when(cardRepository.findAll(any(PageRequest.class))).thenReturn(cardPage);
+
+        // When
+        Page<Card> result = cardService.getAllCards(page, limit, null);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(3);
+        verify(cardRepository).findAll(pageRequest);
+    }
 }

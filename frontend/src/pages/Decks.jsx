@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-
-const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? 'http://localhost:8080' : '/api')
+import { fetchDecks as fetchDecksApi } from '../api/deckApi'
 
 function Decks() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -16,29 +15,15 @@ function Decks() {
   const firstDeck = firstDeckParam ? parseInt(firstDeckParam, 10) : null
 
   useEffect(() => {
-    fetchDecks()
+    loadDecks()
   }, [page, firstDeck])
 
-  const fetchDecks = async () => {
+  const loadDecks = async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams()
-      if (firstDeck) {
-        params.append('firstDeck', firstDeck)
-      } else if (page) {
-        params.append('page', page)
-      } else {
-        params.append('page', '1')
-      }
-      params.append('limit', '20')
-      
-      const apiUrl = import.meta.env.DEV 
-        ? `${API_BASE}/decks?${params.toString()}`
-        : `/api/decks?${params.toString()}`
-      const response = await fetch(apiUrl)
-      const data = await response.json()
-      setDecks(data.decks || [])
-      setPagination(data.pagination)
+      const result = await fetchDecksApi({ page, firstDeck, limit: 20 })
+      setDecks(result.decks)
+      setPagination(result.pagination)
     } catch (error) {
       console.error('Error fetching decks:', error)
     } finally {

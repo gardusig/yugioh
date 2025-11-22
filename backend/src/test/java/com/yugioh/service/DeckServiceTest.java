@@ -344,4 +344,170 @@ class DeckServiceTest {
         assertThat(summary.getTotalCost()).isEqualTo(0);
         assertThat(summary.getMostCommonType()).isNull();
     }
+
+    @Test
+    @DisplayName("Should handle calculateMostCommonType with empty cards list")
+    void calculateMostCommonType_WithEmptyCards_ReturnsNull() {
+        // Given
+        Integer deckId = 1;
+        List<Integer> cardIds = List.of();
+        List<Card> cards = List.of();
+
+        when(deckRepository.findById(deckId)).thenReturn(Optional.of(testDeck1));
+        when(deckCardRepository.findCardIdsByDeckId(deckId)).thenReturn(cardIds);
+        when(cardRepository.findByIds(cardIds)).thenReturn(cards);
+
+        // When
+        Optional<DeckWithCards> result = deckService.getDeckById(deckId);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get().getMostCommonType()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should handle calculateMostCommonType with cards having null type")
+    void calculateMostCommonType_WithNullType_ReturnsNull() {
+        // Given
+        Integer deckId = 1;
+        List<Integer> cardIds = Arrays.asList(1);
+        Card cardWithNullType = new Card();
+        cardWithNullType.setId(1);
+        cardWithNullType.setType(null);
+        List<Card> cards = Arrays.asList(cardWithNullType);
+
+        when(deckRepository.findById(deckId)).thenReturn(Optional.of(testDeck1));
+        when(deckCardRepository.findCardIdsByDeckId(deckId)).thenReturn(cardIds);
+        when(cardRepository.findByIds(cardIds)).thenReturn(cards);
+
+        // When
+        Optional<DeckWithCards> result = deckService.getDeckById(deckId);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get().getMostCommonType()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should handle calculateMostCommonType with monster having null attribute")
+    void calculateMostCommonType_WithMonsterNullAttribute_ReturnsType() {
+        // Given
+        Integer deckId = 1;
+        List<Integer> cardIds = Arrays.asList(1);
+        Card monsterWithNullAttribute = new Card();
+        monsterWithNullAttribute.setId(1);
+        monsterWithNullAttribute.setType("Monster");
+        monsterWithNullAttribute.setAttribute(null);
+        List<Card> cards = Arrays.asList(monsterWithNullAttribute);
+
+        when(deckRepository.findById(deckId)).thenReturn(Optional.of(testDeck1));
+        when(deckCardRepository.findCardIdsByDeckId(deckId)).thenReturn(cardIds);
+        when(cardRepository.findByIds(cardIds)).thenReturn(cards);
+
+        // When
+        Optional<DeckWithCards> result = deckService.getDeckById(deckId);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get().getMostCommonType()).isEqualTo("Monster");
+    }
+
+    @Test
+    @DisplayName("Should handle calculateMostCommonType with empty type string")
+    void calculateMostCommonType_WithEmptyType_ReturnsNull() {
+        // Given
+        Integer deckId = 1;
+        List<Integer> cardIds = Arrays.asList(1);
+        Card cardWithEmptyType = new Card();
+        cardWithEmptyType.setId(1);
+        cardWithEmptyType.setType("");
+        List<Card> cards = Arrays.asList(cardWithEmptyType);
+
+        when(deckRepository.findById(deckId)).thenReturn(Optional.of(testDeck1));
+        when(deckCardRepository.findCardIdsByDeckId(deckId)).thenReturn(cardIds);
+        when(cardRepository.findByIds(cardIds)).thenReturn(cards);
+
+        // When
+        Optional<DeckWithCards> result = deckService.getDeckById(deckId);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get().getMostCommonType()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should handle calculateMostCommonType with tie in counts")
+    void calculateMostCommonType_WithTie_ReturnsFirstMax() {
+        // Given
+        Integer deckId = 1;
+        List<Integer> cardIds = Arrays.asList(1, 2);
+        Card card1 = new Card();
+        card1.setId(1);
+        card1.setType("Monster");
+        card1.setAttribute("Dark");
+        Card card2 = new Card();
+        card2.setId(2);
+        card2.setType("Monster");
+        card2.setAttribute("Light");
+        List<Card> cards = Arrays.asList(card1, card2);
+
+        when(deckRepository.findById(deckId)).thenReturn(Optional.of(testDeck1));
+        when(deckCardRepository.findCardIdsByDeckId(deckId)).thenReturn(cardIds);
+        when(cardRepository.findByIds(cardIds)).thenReturn(cards);
+
+        // When
+        Optional<DeckWithCards> result = deckService.getDeckById(deckId);
+
+        // Then
+        assertThat(result).isPresent();
+        // When there's a tie, max() returns the first one encountered
+        assertThat(result.get().getMostCommonType()).isIn("Dark", "Light");
+    }
+
+    @Test
+    @DisplayName("Should handle calculateMostCommonType with case-insensitive monster type")
+    void calculateMostCommonType_WithCaseInsensitiveMonster_ReturnsAttribute() {
+        // Given
+        Integer deckId = 1;
+        List<Integer> cardIds = Arrays.asList(1);
+        Card card = new Card();
+        card.setId(1);
+        card.setType("monster"); // lowercase
+        card.setAttribute("Dark");
+        List<Card> cards = Arrays.asList(card);
+
+        when(deckRepository.findById(deckId)).thenReturn(Optional.of(testDeck1));
+        when(deckCardRepository.findCardIdsByDeckId(deckId)).thenReturn(cardIds);
+        when(cardRepository.findByIds(cardIds)).thenReturn(cards);
+
+        // When
+        Optional<DeckWithCards> result = deckService.getDeckById(deckId);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get().getMostCommonType()).isEqualTo("Dark");
+    }
+
+    @Test
+    @DisplayName("Should handle calculateMostCommonType with trap type")
+    void calculateMostCommonType_WithTrap_ReturnsTrapType() {
+        // Given
+        Integer deckId = 1;
+        List<Integer> cardIds = Arrays.asList(1);
+        Card card = new Card();
+        card.setId(1);
+        card.setType("Trap");
+        List<Card> cards = Arrays.asList(card);
+
+        when(deckRepository.findById(deckId)).thenReturn(Optional.of(testDeck1));
+        when(deckCardRepository.findCardIdsByDeckId(deckId)).thenReturn(cardIds);
+        when(cardRepository.findByIds(cardIds)).thenReturn(cards);
+
+        // When
+        Optional<DeckWithCards> result = deckService.getDeckById(deckId);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get().getMostCommonType()).isEqualTo("Trap");
+    }
 }

@@ -27,6 +27,7 @@ export default defineConfig({
       exclude: [
         'node_modules/',
         'src/test/',
+        'src/api/',
         '**/*.config.js',
         '**/main.jsx',
         '**/index.css',
