@@ -510,4 +510,5 @@ class DeckServiceTest {
         assertThat(result).isPresent();
         assertThat(result.get().getMostCommonType()).isEqualTo("Trap");
     }
+
 }
