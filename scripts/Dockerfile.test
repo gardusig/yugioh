@@ -1,0 +1,27 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    bash \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy scripts and data files
+COPY *.py ./
+COPY *.sh ./
+COPY sacred_cards.csv ./
+COPY migrations/ ./migrations/
+
+# Make scripts executable
+RUN chmod +x *.sh *.py || true
+
+# Default command runs integration tests
+# Can be overridden in docker-compose.yml
+CMD ["python", "integration_test.py", "--api-url", "http://backend:8080", "--wait", "10"]
+

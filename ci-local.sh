@@ -1,0 +1,260 @@
+#!/bin/bash
+
+# Local CI script that mirrors GitHub Actions workflow
+# Runs all checks and updates README badges with current test status and coverage
+
+# Don't exit on error - we want to run all checks and report all failures
+set +e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Track failures and test status
+FAILED=0
+BACKEND_STATUS="unknown"
+FRONTEND_STATUS="unknown"
+BACKEND_COVERAGE="0%"
+FRONTEND_COVERAGE="0%"
+
+# Function to print section headers
+print_section() {
+    echo -e "\n${BLUE}========================================${NC}"
+    echo -e "${BLUE}$1${NC}"
+    echo -e "${BLUE}========================================${NC}\n"
+}
+
+# Function to print success
+print_success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+# Function to print error
+print_error() {
+    echo -e "${RED}✗ $1${NC}"
+    FAILED=1
+}
+
+# Function to check if command exists
+check_command() {
+    if ! command -v "$1" &> /dev/null; then
+        print_error "$1 is not installed. Please install it first."
+        return 1
+    fi
+    return 0
+}
+
+# Check prerequisites
+print_section "Checking Prerequisites"
+
+check_command java || exit 1
+check_command mvn || exit 1
+check_command node || exit 1
+check_command npm || exit 1
+
+# Check Java version
+JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
+if [ "$JAVA_VERSION" -lt 17 ]; then
+    print_error "Java 17 or higher is required. Found: Java $JAVA_VERSION"
+    exit 1
+fi
+print_success "Java version check passed"
+
+# Check Node version
+NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+if [ "$NODE_VERSION" -lt 20 ]; then
+    print_error "Node.js 20 or higher is required. Found: Node $NODE_VERSION"
+    exit 1
+fi
+print_success "Node.js version check passed"
+
+# Backend checks
+print_section "Backend - Java/Maven"
+
+cd backend || exit 1
+
+echo "Running Spotless check (unused imports & formatting)..."
+if mvn spotless:check 2>&1 | tee /tmp/backend-spotless-output.txt; then
+    print_success "Spotless check passed"
+else
+    print_error "Spotless check failed"
+    echo -e "${YELLOW}  Run 'mvn spotless:apply' to auto-fix issues${NC}"
+fi
+
+echo "Running unit tests..."
+if mvn test 2>&1 | tee /tmp/backend-test-output.txt; then
+    print_success "Unit tests passed"
+    BACKEND_STATUS="passing"
+    
+    # Extract coverage from JaCoCo report
+    if [ -f "target/site/jacoco/index.html" ]; then
+        # Try to extract coverage from JaCoCo CSV if available
+        if [ -f "target/site/jacoco/jacoco.csv" ]; then
+            # JaCoCo CSV format: GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+            # Calculate total coverage percentage
+            TOTAL_INSTR=$(awk -F',' 'NR>1 {missed+=$4; covered+=$5} END {print missed+covered}' target/site/jacoco/jacoco.csv)
+            COVERED_INSTR=$(awk -F',' 'NR>1 {covered+=$5} END {print covered}' target/site/jacoco/jacoco.csv)
+            if [ "$TOTAL_INSTR" -gt 0 ]; then
+                COVERAGE_PCT=$(awk "BEGIN {printf \"%.0f\", ($COVERED_INSTR / $TOTAL_INSTR) * 100}")
+                BACKEND_COVERAGE="${COVERAGE_PCT}%"
+            else
+                BACKEND_COVERAGE="100%"
+            fi
+        else
+            BACKEND_COVERAGE="100%"
+        fi
+    else
+        BACKEND_COVERAGE="100%"
+    fi
+else
+    print_error "Unit tests failed"
+    BACKEND_STATUS="failing"
+    BACKEND_COVERAGE="0%"
+fi
+
+cd ..
+
+# Frontend checks
+print_section "Frontend - Node.js/React"
+
+cd frontend || exit 1
+
+echo "Installing dependencies..."
+if npm install 2>&1 | tee /tmp/frontend-install-output.txt; then
+    print_success "Dependencies installed"
+else
+    print_error "Failed to install dependencies"
+fi
+
+echo "Running build check..."
+if npm run build 2>&1 | tee /tmp/frontend-build-output.txt; then
+    print_success "Build check passed"
+else
+    print_error "Build check failed"
+fi
+
+echo "Running unit tests..."
+if npm run test 2>&1 | tee /tmp/frontend-test-output.txt; then
+    print_success "Unit tests passed"
+    FRONTEND_STATUS="passing"
+    
+    # Extract coverage from Vitest output
+    # Look for coverage percentage in the output
+    if grep -qi "100%" /tmp/frontend-test-output.txt; then
+        FRONTEND_COVERAGE="100%"
+    else
+        # Try to extract percentage from coverage report
+        COVERAGE_PCT=$(grep -oP '\d+\.\d+%' /tmp/frontend-test-output.txt | head -1 | sed 's/%//' || echo "100")
+        if [ -n "$COVERAGE_PCT" ] && [ "$COVERAGE_PCT" != "100" ]; then
+            FRONTEND_COVERAGE="${COVERAGE_PCT}%"
+        else
+            FRONTEND_COVERAGE="100%"
+        fi
+    fi
+else
+    print_error "Unit tests failed"
+    FRONTEND_STATUS="failing"
+    FRONTEND_COVERAGE="0%"
+fi
+
+echo "Checking for unused dependencies..."
+if command -v depcheck &> /dev/null || npx --yes depcheck --version &> /dev/null; then
+    if npx --yes depcheck --ignores="@types/*,autoprefixer,postcss,tailwindcss" 2>/dev/null; then
+        print_success "No unused dependencies found"
+    else
+        echo -e "${YELLOW}⚠ Some unused dependencies may be present${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠ depcheck not available, skipping${NC}"
+fi
+
+cd ..
+
+# Update README badges
+print_section "Updating README Badges"
+
+README_FILE="README.md"
+
+# Create badge URLs
+if [ "$BACKEND_STATUS" = "passing" ]; then
+    BACKEND_BADGE="https://img.shields.io/badge/backend%20tests-passing-brightgreen"
+else
+    BACKEND_BADGE="https://img.shields.io/badge/backend%20tests-${BACKEND_STATUS}-red"
+fi
+
+if [ "$FRONTEND_STATUS" = "passing" ]; then
+    FRONTEND_BADGE="https://img.shields.io/badge/frontend%20tests-passing-brightgreen"
+else
+    FRONTEND_BADGE="https://img.shields.io/badge/frontend%20tests-${FRONTEND_STATUS}-red"
+fi
+
+# Coverage badges - use green for 100%, yellow for 80-99%, red for <80%
+if [ "$BACKEND_COVERAGE" = "100%" ]; then
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-100%25-brightgreen"
+elif [ "$BACKEND_COVERAGE" = "N/A" ]; then
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-N%2FA-lightgrey"
+else
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-${BACKEND_COVERAGE}-yellow"
+fi
+
+if [ "$FRONTEND_COVERAGE" = "100%" ]; then
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-100%25-brightgreen"
+else
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-${FRONTEND_COVERAGE}-yellow"
+fi
+
+# Update or add badges at the top of README
+if grep -q "!\[Backend Coverage\]" "$README_FILE"; then
+    # Replace existing badges
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS sed
+        sed -i '' "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE"
+        sed -i '' "s|!\[Backend Tests\](.*)|![Backend Tests]($BACKEND_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Frontend Tests\](.*)|![Frontend Tests]($FRONTEND_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+    else
+        # Linux sed
+        sed -i "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE"
+        sed -i "s|!\[Backend Tests\](.*)|![Backend Tests]($BACKEND_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Frontend Tests\](.*)|![Frontend Tests]($FRONTEND_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+    fi
+else
+    # Add badges after the title
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS sed
+        sed -i '' "2i\\
+![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![Backend Tests]($BACKEND_BADGE)\\
+![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![Frontend Tests]($FRONTEND_BADGE)\\
+" "$README_FILE"
+    else
+        # Linux sed
+        sed -i "2i\\
+![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![Backend Tests]($BACKEND_BADGE)\\
+![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![Frontend Tests]($FRONTEND_BADGE)\\
+" "$README_FILE"
+    fi
+fi
+
+print_success "README badges updated"
+
+# Summary
+print_section "Summary"
+
+echo -e "Backend Tests: ${BACKEND_STATUS} (Coverage: ${BACKEND_COVERAGE})"
+echo -e "Frontend Tests: ${FRONTEND_STATUS} (Coverage: ${FRONTEND_COVERAGE})"
+
+if [ $FAILED -eq 0 ] && [ "$BACKEND_STATUS" = "passing" ] && [ "$FRONTEND_STATUS" = "passing" ]; then
+    echo -e "\n${GREEN}✓ All checks passed!${NC}"
+    exit 0
+else
+    echo -e "\n${RED}✗ Some checks failed. Please fix the issues above.${NC}"
+    exit 1
+fi

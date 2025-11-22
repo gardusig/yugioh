@@ -170,9 +170,18 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8080';
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:8080' 
+            : 'http://backend:8080';
         let currentPage = 1;
         const limit = 24;
+
+        // Get starting card ID from URL query parameter
+        function getStartingCardId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const startId = parseInt(urlParams.get('start') || urlParams.get('startId') || '1');
+            return Math.max(1, Math.min(900, startId)); // Clamp between 1 and 900
+        }
 
         async function loadCards(page = 1) {
             document.getElementById('loading').style.display = 'block';
@@ -180,12 +189,13 @@
             document.getElementById('pagination').style.display = 'none';
 
             try {
-                const response = await fetch(`${API_URL}/cards?page=${page}&limit=${limit}`);
+                const startId = getStartingCardId();
+                const response = await fetch(`${API_URL}/cards?page=${page}&limit=${limit}&startId=${startId}`);
                 const data = await response.json();
 
                 if (response.ok) {
                     displayCards(data.cards);
-                    displayPagination(data.pagination);
+                    displayPagination(data.pagination, startId);
                     currentPage = page;
                 } else {
                     document.getElementById('loading').textContent = 'Error loading cards';
@@ -229,18 +239,32 @@
             grid.style.display = 'grid';
         }
 
-        function displayPagination(pagination) {
+        function displayPagination(pagination, startId) {
             const paginationDiv = document.getElementById('pagination');
+            const currentStartId = startId + (currentPage - 1) * limit;
+            const endId = Math.min(startId + currentPage * limit - 1, 900);
+            
             paginationDiv.innerHTML = `
                 <button onclick="loadCards(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
                     Previous
                 </button>
-                <span>Page ${pagination.page} of ${pagination.totalPages} (${pagination.total} cards)</span>
+                <span>Page ${pagination.page} of ${pagination.totalPages} (Cards ${currentStartId}-${endId} of ${pagination.total})</span>
                 <button onclick="loadCards(${currentPage + 1})" ${currentPage >= pagination.totalPages ? 'disabled' : ''}>
                     Next
                 </button>
+                <div style="margin-left: 20px;">
+                    <label>Start from card ID: </label>
+                    <input type="number" id="startIdInput" min="1" max="900" value="${startId}" style="width: 60px; padding: 5px;">
+                    <button onclick="goToCard()" style="margin-left: 5px; padding: 5px 10px;">Go</button>
+                </div>
             `;
             paginationDiv.style.display = 'flex';
+        }
+
+        function goToCard() {
+            const startId = parseInt(document.getElementById('startIdInput').value) || 1;
+            const clampedId = Math.max(1, Math.min(900, startId));
+            window.location.href = `cards.html?start=${clampedId}`;
         }
 
         // Load cards on page load
