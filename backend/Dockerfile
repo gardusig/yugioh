@@ -1,13 +1,14 @@
-FROM golang:1.23-alpine AS builder
+# Build stage
+FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN go build -o server .
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-FROM alpine:3.19
-RUN apk update && apk upgrade --no-cache && apk add --no-cache ca-certificates
+# Runtime stage
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=builder /app/server .
+RUN apt-get update && apt-get upgrade -y && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
-CMD ["./server"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

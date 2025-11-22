@@ -1,0 +1,10 @@
+*.py
+*.pyc
+__pycache__/
+scripts/
+*.md
+.DS_Store
+target/
+.idea/
+.vscode/
+

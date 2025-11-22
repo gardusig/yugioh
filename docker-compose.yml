@@ -26,10 +26,20 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: postgres://yugioh_user:yugioh_password@database:5432/yugioh_db?sslmode=disable
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: yugioh_user
+      DB_PASSWORD: yugioh_password
+      DB_NAME: yugioh_db
     depends_on:
       database:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     networks:
       - yugioh-network
 
@@ -41,7 +51,8 @@ services:
     ports:
       - "8082:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - yugioh-network
 

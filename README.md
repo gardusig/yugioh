@@ -1,21 +1,31 @@
 # Yu-Gi-Oh! The Sacred Cards Database
 
-A full-stack application for browsing all 900 cards and character decks from Yu-Gi-Oh! The Sacred Cards. Built with Go backend, PostgreSQL database, and a modern web interface.
+![Backend Coverage](https://img.shields.io/badge/backend%20coverage-83%-yellow)
+![Backend Tests](https://img.shields.io/badge/backend%20tests-passing-brightgreen)
+![Frontend Coverage](https://img.shields.io/badge/frontend%20coverage-100%25-brightgreen)
+![Frontend Tests](https://img.shields.io/badge/frontend%20tests-passing-brightgreen)
+
+A full-stack application for browsing all 900 cards and character decks from Yu-Gi-Oh! The Sacred Cards. Built with Java Spring Boot backend, PostgreSQL database, and a modern web interface.
 
 ## Features
 
-- **Card Browsing**: Browse all 900 cards (001-900) from Yu-Gi-Oh! The Sacred Cards with pagination
-- **Deck Viewing**: View all character decks with detailed information
+- **Card Browsing**: Browse Yu-Gi-Oh! The Sacred Cards data with pagination (seed sample or full data)
+- **Deck Viewing**: View character decks with detailed information
 - **Card Details**: View complete card information including attributes, race, level, attack/defense, cost, and rarity
 - **Deck Details**: View full deck compositions with all 40 cards
 - **Pagination**: Efficient pagination for both cards and decks
+- **Swagger/OpenAPI**: Interactive API documentation with Swagger UI
+- **Scriptable Data Management**: Reset, truncate, and reseed the database via `scripts/db_manager.py`
 
 ## Prerequisites
 
 - **Docker Desktop** - Required for running the application
-- **Go 1.23+** (optional) - For local development
+- **Java 17+** (optional) - For local development
+- **Maven 3.9+** (optional) - For local development
 
 ## Quick Start
+
+### 1. Start the Application (all services)
 
 ```bash
 # Start all services (database, API, frontend)
@@ -25,29 +35,143 @@ docker-compose up --build
 docker-compose down
 ```
 
-## Services
+### 2. Start only the Database (for maintenance)
+
+```bash
+# Launch PostgreSQL alone (useful for running scripts)
+docker-compose up -d database
+```
+
+### 3. Access the Application
+
+Once the services are running, you can access:
+
+#### **Frontend Web UI** 🌐
+- **URL**: http://localhost:8082
+- **Description**: Main web interface for browsing cards and decks
+- **Features**:
+  - Browse all 900 cards with pagination
+  - View character decks
+  - Search and filter decks by archetype
+  - View detailed deck compositions
+
+#### **Swagger UI** 📚
+- **URL**: http://localhost:8080/swagger-ui.html
+- **Description**: Interactive API documentation
+- **Features**:
+  - Browse all available API endpoints
+  - Test API calls directly from the browser
+  - View request/response schemas
+  - See example requests and responses
+
+#### **API Documentation (JSON)** 📄
+- **URL**: http://localhost:8080/api-docs
+- **Description**: OpenAPI 3.0 JSON specification
+- **Use Case**: Import into API testing tools like Postman or Insomnia
+
+#### **Backend API** 🔌
+- **URL**: http://localhost:8080
+- **Description**: REST API endpoint
+- **Health Check**: http://localhost:8080/healthcheck
+
+## Database Maintenance & Sample Data
+
+Flyway now creates only the schema (`V1__initial_schema.sql`). All data management happens through `scripts/db_manager.py`. This keeps migrations fast and lets you decide when/how to populate the database.
+
+### Step-by-step: clear DB and load the first 10 cards (001-010)
+
+```bash
+# 1. Start PostgreSQL only (if it is not already running)
+docker-compose up -d database
+
+# 2. Clear all data but keep the tables
+docker-compose run --rm scripts python3 db_manager.py truncate-all
+
+# 3. Seed the first 10 iconic cards
+docker-compose run --rm scripts python3 db_manager.py seed --cards
+```
+
+### Other useful commands
+
+> ℹ️ Run `docker-compose up -d database` first so the scripts can connect to Postgres.
+
+| Goal | Command |
+|------|---------|
+| Drop & recreate entire schema (removes everything) | `docker-compose run --rm scripts python3 db_manager.py reset-db` |
+| Clear all rows but keep tables | `docker-compose run --rm scripts python3 db_manager.py truncate-all` |
+| Truncate a single table | `docker-compose run --rm scripts python3 db_manager.py truncate-table cards` (or `decks`, `deck_cards`) |
+| Seed the sample 10 iconic cards + 2 decks | `docker-compose run --rm scripts python3 db_manager.py seed` |
+| Seed only cards | `docker-compose run --rm scripts python3 db_manager.py seed --cards` |
+| Seed only decks (expects matching card IDs to exist) | `docker-compose run --rm scripts python3 db_manager.py seed --decks` |
+
+To generate larger SQL imports (e.g., all 900 cards), run `crawl_cards.py` to produce an export, then pipe it into `psql` or adapt the output inside `db_manager.py`. See `scripts/README.md` for details.
+
+## Services Overview
 
 | Service | URL | Description |
 |---------|-----|-------------|
 | **Frontend** | http://localhost:8082 | Web interface for card browsing and deck viewing |
-| **API** | http://localhost:8080 | REST API endpoint |
-| **Swagger UI** | http://localhost:8080/swagger | Interactive API documentation |
+| **Backend API** | http://localhost:8080 | REST API endpoint (Spring Boot) |
+| **Swagger UI** | http://localhost:8080/swagger-ui.html | Interactive API documentation |
+| **API Docs** | http://localhost:8080/api-docs | OpenAPI 3.0 JSON specification |
 | **Database** | localhost:5432 | PostgreSQL database |
+| **Scripts** | N/A | Utility scripts container (run on-demand via `docker-compose run`) |
+
+## How to Use Swagger UI
+
+1. **Start the application**: `docker-compose up --build`
+2. **Open Swagger UI**: Navigate to http://localhost:8080/swagger-ui.html in your browser
+3. **Explore Endpoints**: 
+   - Click on any endpoint (e.g., `GET /cards`) to expand it
+   - View the endpoint description, parameters, and response schema
+4. **Test API Calls**:
+   - Click "Try it out" button on any endpoint
+   - Modify parameters if needed (e.g., `page`, `limit`)
+   - Click "Execute" to make the API call
+   - View the response in the UI
+5. **View Schemas**: Scroll down to see all data models (Card, Deck, etc.)
+
+## How to Use the Frontend UI
+
+1. **Start the application**: `docker-compose up --build`
+2. **Open the Frontend**: Navigate to http://localhost:8082 in your browser
+3. **Browse Cards**:
+   - Click "Browse All Cards (001-900)" from the home page
+   - Use pagination to navigate through cards
+   - View card details including attack, defense, and cost
+4. **Browse Decks**:
+   - Click "View Decks & Search" from the home page
+   - Use filters to find decks by archetype (Insect, Dragon, etc.)
+   - Search for specific decks by name
+   - Click on any deck to view full details with all cards
 
 ## Project Structure
 
 ```
 .
-├── backend/               # Go backend API
-│   ├── api/              # HTTP handlers
-│   ├── database/         # Database repositories and migrations
-│   ├── models/           # Data models (Card, Deck)
-│   ├── main.go          # Application entry point
-│   └── Dockerfile       # Backend container definition
-├── frontend/             # Frontend web interface
-│   ├── public/          # HTML, CSS, JavaScript files
-│   └── Dockerfile       # Frontend container definition
-└── docker-compose.yml    # Service orchestration
+├── backend/                          # Java Spring Boot backend (web server only)
+│   ├── src/main/java/com/yugioh/
+│   │   ├── YugiohApplication.java   # Main application class
+│   │   ├── config/                  # Configuration classes
+│   │   ├── controller/             # REST controllers
+│   │   ├── service/                 # Business logic services
+│   │   ├── repository/              # JPA repositories
+│   │   ├── model/                   # Entity models
+│   │   └── dto/                     # Data transfer objects
+│   ├── src/main/resources/
+│   │   ├── application.properties    # Application configuration
+│   │   └── db/migration/             # Flyway database migrations
+│   ├── pom.xml                      # Maven dependencies
+│   └── Dockerfile                   # Backend container definition
+├── frontend/                        # Frontend web interface
+│   ├── public/                      # HTML, CSS, JavaScript files
+│   └── Dockerfile                   # Frontend container definition
+├── scripts/                         # Utility scripts and tools
+│   ├── crawl_cards.py               # Card data crawler
+│   ├── db_manager.py                # Reset/truncate/seed helper
+│   ├── Dockerfile                   # Scripts container definition
+│   └── README.md                    # Scripts documentation
+└── docker-compose.yml               # Service orchestration
 ```
 
 ## API Endpoints
@@ -60,15 +184,57 @@ All endpoints are publicly accessible - no authentication required.
   - Returns: `{ "cards": [...], "pagination": {...} }`
 - `GET /cards/{id}` - Get card by ID with full details
 
-### Swagger
-- `GET /swagger` - Swagger UI for interactive API documentation
-- `GET /swagger.json` - OpenAPI 3.0 specification
-
 ### Decks
 - `GET /decks` - List all decks with pagination
   - Query params: `page` (default: 1), `limit` (default: 20, max: 100), `archetype`, `preset` (true/false)
   - Returns: Deck summaries with name, description, character_name, archetype, card_count, total_cost, max_cost
 - `GET /decks/{id}` - Get deck by ID with full card details
+
+### Health
+- `GET /healthcheck` - Health check endpoint
+
+### Swagger/OpenAPI
+- `GET /swagger-ui.html` - Swagger UI for interactive API documentation
+- `GET /api-docs` - OpenAPI 3.0 JSON specification
+
+## Example API Calls
+
+### Using cURL
+
+```bash
+# Get all cards (first page)
+curl http://localhost:8080/cards
+
+# Get cards with pagination
+curl http://localhost:8080/cards?page=2&limit=50
+
+# Get specific card
+curl http://localhost:8080/cards/1
+
+# Get all decks
+curl http://localhost:8080/decks
+
+# Get decks filtered by archetype
+curl http://localhost:8080/decks?archetype=Insect
+
+# Get preset decks only
+curl http://localhost:8080/decks?preset=true
+
+# Get specific deck with cards
+curl http://localhost:8080/decks/1
+
+# Health check
+curl http://localhost:8080/healthcheck
+```
+
+### Using Swagger UI
+
+1. Open http://localhost:8080/swagger-ui.html
+2. Click on any endpoint (e.g., `GET /cards`)
+3. Click "Try it out"
+4. Modify parameters if needed
+5. Click "Execute"
+6. View the response
 
 ## Database
 
@@ -104,32 +270,67 @@ The application uses PostgreSQL with the following tables:
 
 ## Database Migrations
 
-Migrations are automatically run on backend startup. They are located in `backend/database/migrations/`:
-- `001_initial_schema.sql` - Creates cards, decks, and deck_cards tables
-- `002_seed_cards.sql` - Seeds all 900 cards (001-900) from The Sacred Cards
-- `003_seed_decks.sql` - Seeds preset character decks (Weevil, Mako, Kaiba, Yugi, Joey, Rex, etc.)
+Flyway automatically runs SQL files inside `backend/src/main/resources/db/migration/`. At the moment only the schema migration is maintained in Git:
 
-## Frontend Pages
+- `V1__initial_schema.sql` — creates `cards`, `decks`, and `deck_cards`
 
-- **Home** (`index.html`) - Landing page with navigation to cards and decks
-- **Cards** (`cards.html`) - Browse all 900 cards with pagination
-- **Decks** (`decks.html`) - View and search decks, filter by archetype
-- **Deck Detail** (`deck-detail.html`) - View full deck details with all cards
+All data seeding is handled manually through `scripts/db_manager.py` to avoid long Flyway runtimes and to keep business data outside of migrations.
+
+### Generating / Importing Card Data
+
+If you need a large batch of card inserts:
+
+1. Run the crawler to generate SQL (see `scripts/README.md` for options).
+2. Pipe the output directly into `psql`, or copy the rows you want into `db_manager.py` and re-run the `seed` command.
+
+Example (Docker + psql):
+
+```bash
+docker-compose run --rm scripts python3 crawl_cards.py --start 1 --end 50 > /tmp/cards.sql
+cat /tmp/cards.sql | docker exec -i yugioh-database psql -U yugioh_user -d yugioh_db
+```
 
 ## Development
+
+### Local CI Checks
+
+Before pushing code, you can run the same checks that GitHub Actions will run:
+
+```bash
+# Run all CI checks locally and update README badges
+./ci-local.sh
+```
+
+This script will:
+- **Backend**: Check for unused imports (Spotless) and run unit tests (using mocks, no database required)
+- **Frontend**: Install dependencies, build check, run unit tests, and check for unused dependencies
+- **Badges**: Automatically update README badges with current test status and coverage percentages
+
+**Note**: All tests use mocks and don't require a running database. The README badges will be updated with the current test results and coverage percentages after all checks complete.
 
 ### Run Backend Locally
 
 ```bash
 cd backend
-go run main.go
+mvn spring-boot:run
 ```
 
 The API will be available at http://localhost:8080
 
+**Note**: Make sure PostgreSQL is running and accessible. Update `application.properties` with your database credentials if needed.
+
+### Build Backend
+
+```bash
+cd backend
+mvn clean package
+```
+
+The JAR file will be created in `target/yugioh-api-1.0.0.jar`
+
 ### Database Migrations
 
-Migrations are automatically run on backend startup. The migration system reads all `.sql` files in `backend/database/migrations/` and executes them in numerical order (001, 002, 003, etc.).
+Migrations are automatically run on backend startup via Flyway. The migration system reads all SQL files in `backend/src/main/resources/db/migration/` and executes them in version order (V1, V2, V3, etc.).
 
 ## Troubleshooting
 
@@ -138,8 +339,39 @@ Migrations are automatically run on backend startup. The migration system reads 
 - **Docker not running**: Start Docker Desktop application
 - **Port conflicts**: Modify ports in `docker-compose.yml` if 8080 or 8082 are in use
 - **View logs**: `docker-compose logs -f [service-name]`
+  - Backend logs: `docker-compose logs -f backend`
+  - Database logs: `docker-compose logs -f database`
+  - Frontend logs: `docker-compose logs -f frontend`
 - **Rebuild containers**: `docker-compose up --build --force-recreate`
 - **Clean restart**: `docker-compose down && docker-compose up --build`
+- **Database connection issues**: Check that the database service is healthy before the backend starts
+- **Migration errors**: Check Flyway logs in backend container output
+
+### Backend Connection Issues
+
+If the frontend cannot connect to the backend:
+
+1. Verify backend is running: `docker-compose ps`
+2. Check backend logs: `docker-compose logs backend`
+3. Test API directly: `curl http://localhost:8080/healthcheck`
+4. Verify CORS is enabled (it should be with `@CrossOrigin` annotations)
+
+### Swagger UI Not Loading
+
+If Swagger UI doesn't load:
+
+1. Verify backend is running: `docker-compose ps`
+2. Check backend logs: `docker-compose logs backend`
+3. Try accessing: http://localhost:8080/api-docs (should return JSON)
+4. Clear browser cache and try again
+
+## Technology Stack
+
+- **Backend**: Java 17, Spring Boot 3.2.0, Spring Data JPA, Springdoc OpenAPI (Swagger)
+- **Database**: PostgreSQL 16
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Containerization**: Docker, Docker Compose
+- **Database Migrations**: Flyway
 
 ## License
 

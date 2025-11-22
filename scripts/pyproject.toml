@@ -1,0 +1,21 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+src = ["."]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.coverage.run]
+branch = true
+# The crawler performs live HTTP requests; we keep it outside the coverage target.
+# Also omit setup scripts and migration scripts that aren't unit tested
+omit = [
+  "crawl_cards.py",
+  "check_db.py",
+  "run_migrations.py",
+  "setup.py",
+]
+
