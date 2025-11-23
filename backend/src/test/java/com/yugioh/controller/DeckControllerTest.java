@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -275,6 +276,49 @@ class DeckControllerTest {
 
         // When
         ResponseEntity<Map<String, Object>> response = deckController.getAllDecks(null, limit, firstDeck, null, preset);
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        PaginationResponse pagination = (PaginationResponse) response.getBody().get("pagination");
+        assertThat(pagination.getPage()).isEqualTo(calculatedPage);
+    }
+
+    @Test
+    @DisplayName("Should handle preset=false filter")
+    void getAllDecks_WithPresetFalse_ReturnsNullPresetOnly() {
+        // Given
+        int page = 1;
+        int limit = 20;
+        Boolean preset = false;
+        Page<DeckSummary> deckPage = new PageImpl<>(testDecks, PageRequest.of(0, limit), 50);
+
+        when(deckService.getAllDecks(eq(page), eq(limit), isNull(), isNull())).thenReturn(deckPage);
+
+        // When
+        ResponseEntity<Map<String, Object>> response = deckController.getAllDecks(page, limit, null, null, preset);
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(deckService).getAllDecks(eq(page), eq(limit), isNull(), isNull());
+    }
+
+    @Test
+    @DisplayName("Should handle firstDeck with archetype filter")
+    void getAllDecks_WithFirstDeckAndArchetype_CalculatesCorrectPage() {
+        // Given
+        int limit = 20;
+        Integer firstDeck = 5;
+        String archetype = "Dark Magician";
+        int calculatedPage = 1;
+        Page<DeckSummary> deckPage = new PageImpl<>(Arrays.asList(testDeck1), PageRequest.of(0, limit), 10);
+
+        when(deckService.calculatePageFromDeckId(eq(firstDeck), eq(limit), eq(archetype), eq(false)))
+            .thenReturn(calculatedPage);
+        when(deckService.getAllDecks(eq(calculatedPage), eq(limit), eq(archetype), isNull()))
+            .thenReturn(deckPage);
+
+        // When
+        ResponseEntity<Map<String, Object>> response = deckController.getAllDecks(null, limit, firstDeck, archetype, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

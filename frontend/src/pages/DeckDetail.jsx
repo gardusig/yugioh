@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Card3D from '../components/Card3D'
-
-const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? 'http://localhost:8080' : '/api')
+import { fetchDeckById } from '../api/deckApi'
 
 function DeckDetail() {
   const { id } = useParams()
@@ -10,20 +9,14 @@ function DeckDetail() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchDeck()
+    loadDeck()
   }, [id])
 
-  const fetchDeck = async () => {
+  const loadDeck = async () => {
     setLoading(true)
     try {
-      const apiUrl = import.meta.env.DEV 
-        ? `${API_BASE}/decks/${id}`
-        : `/api/decks/${id}`
-      const response = await fetch(apiUrl)
-      if (response.ok) {
-        const data = await response.json()
-        setDeck(data)
-      }
+      const deckData = await fetchDeckById(parseInt(id, 10))
+      setDeck(deckData)
     } catch (error) {
       console.error('Error fetching deck:', error)
     } finally {

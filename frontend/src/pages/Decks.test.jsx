@@ -2,9 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import Decks from './Decks'
+import * as deckApi from '../api/deckApi'
 
-// Mock fetch
-global.fetch = vi.fn()
+// Mock the API module
+vi.mock('../api/deckApi')
 
 describe('Decks', () => {
   const mockDecksData = {
@@ -44,11 +45,13 @@ describe('Decks', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset mock implementation
+    deckApi.fetchDecks.mockResolvedValue(mockDecksData)
   })
 
   const renderDecks = (initialSearchParams = '') => {
     const Wrapper = ({ children }) => (
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         {children}
       </BrowserRouter>
     )
@@ -59,29 +62,24 @@ describe('Decks', () => {
   }
 
   it('renders loading state initially', () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockImplementation(() => new Promise(() => {})) // Never resolves
     renderDecks()
     expect(screen.getByText('Loading decks...')).toBeInTheDocument()
   })
 
   it('fetches and displays decks', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(mockDecksData)
     renderDecks()
     
     await waitFor(() => {
       expect(screen.getByText('Yugi Deck')).toBeInTheDocument()
     })
     expect(screen.getByText('Kaiba Deck')).toBeInTheDocument()
+    expect(deckApi.fetchDecks).toHaveBeenCalledWith({ page: null, firstDeck: null, limit: 20 })
   })
 
   it('displays deck information', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(mockDecksData)
     renderDecks()
     
     await waitFor(() => {
@@ -94,9 +92,7 @@ describe('Decks', () => {
   })
 
   it('displays preset badge', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(mockDecksData)
     renderDecks()
     
     await waitFor(() => {
@@ -105,9 +101,7 @@ describe('Decks', () => {
   })
 
   it('displays cost with correct color', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(mockDecksData)
     renderDecks()
     
     await waitFor(() => {
@@ -117,9 +111,7 @@ describe('Decks', () => {
   })
 
   it('handles pagination', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(mockDecksData)
     renderDecks()
     
     await waitFor(() => {
@@ -128,7 +120,7 @@ describe('Decks', () => {
   })
 
   it('handles fetch error', async () => {
-    fetch.mockRejectedValueOnce(new Error('Network error'))
+    deckApi.fetchDecks.mockRejectedValueOnce(new Error('Network error'))
     renderDecks()
     
     await waitFor(() => {
@@ -137,22 +129,16 @@ describe('Decks', () => {
   })
 
   it('handles firstDeck parameter', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(mockDecksData)
     renderDecks('firstDeck=1')
     
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('firstDeck=1')
-      )
+      expect(deckApi.fetchDecks).toHaveBeenCalledWith({ page: null, firstDeck: 1, limit: 20 })
     })
   })
 
   it('handles empty decks array', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => ({ decks: [], pagination: null }),
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce({ decks: [], pagination: null })
     renderDecks()
     
     await waitFor(() => {
@@ -165,9 +151,7 @@ describe('Decks', () => {
       ...mockDecksData,
       decks: [{ ...mockDecksData.decks[0], description: null }],
     }
-    fetch.mockResolvedValueOnce({
-      json: async () => deckWithoutDesc,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(deckWithoutDesc)
     renderDecks()
     
     await waitFor(() => {
@@ -185,9 +169,7 @@ describe('Decks', () => {
         totalPages: 3,
       },
     }
-    fetch.mockResolvedValueOnce({
-      json: async () => paginationData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(paginationData)
     renderDecks('page=2')
     
     await waitFor(() => {
@@ -203,9 +185,7 @@ describe('Decks', () => {
   })
 
   it('handles updatePagination with firstDeck', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockDecksData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(mockDecksData)
     renderDecks('firstDeck=1')
     
     await waitFor(() => {
@@ -223,9 +203,7 @@ describe('Decks', () => {
         totalPages: 3,
       },
     }
-    fetch.mockResolvedValueOnce({
-      json: async () => paginationData,
-    })
+    deckApi.fetchDecks.mockResolvedValueOnce(paginationData)
     renderDecks('page=2')
     
     await waitFor(() => {

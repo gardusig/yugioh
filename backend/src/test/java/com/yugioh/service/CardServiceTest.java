@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,14 +16,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CardService Tests")
@@ -96,7 +101,8 @@ class CardServiceTest {
         List<Card> filteredCards = Arrays.asList(testCard2, testCard3);
         Page<Card> cardPage = new PageImpl<>(filteredCards, pageRequest, 50);
 
-        when(cardRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(cardPage);
+        ArgumentCaptor<Specification<Card>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(cardRepository.findAll(specCaptor.capture(), any(PageRequest.class))).thenReturn(cardPage);
 
         // When
         Page<Card> result = cardService.getAllCards(page, limit, startId);
@@ -106,7 +112,26 @@ class CardServiceTest {
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.getTotalElements()).isEqualTo(50L);
         assertThat(result.getContent()).containsExactlyElementsOf(filteredCards);
+
+        // Execute the captured Specification to ensure lambda code is covered
+        Specification<Card> capturedSpec = specCaptor.getValue();
+        Root<Card> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+        @SuppressWarnings("unchecked")
+        Path<Object> idPath = mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.get("id")).thenReturn(idPath);
+        when(cb.greaterThanOrEqualTo(any(), eq(startId))).thenReturn(predicate);
+        when(cb.and(any(Predicate[].class))).thenReturn(predicate);
+
+        // Execute the specification lambda
+        capturedSpec.toPredicate(root, query, cb);
+
         verify(cardRepository).findAll(any(Specification.class), eq(pageRequest));
+        verify(root).get("id");
+        verify(cb).greaterThanOrEqualTo(any(), eq(startId));
     }
 
     @Test
@@ -211,6 +236,48 @@ class CardServiceTest {
 
         // When
         Page<Card> result = cardService.getAllCards(page, limit, invalidStartId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(3);
+        verify(cardRepository).findAll(pageRequest);
+    }
+
+    @Test
+    @DisplayName("Should handle startId filter with negative value")
+    void getAllCards_WithNegativeStartId_ReturnsAllCards() {
+        // Given
+        int page = 1;
+        int limit = 24;
+        Integer negativeStartId = -1;
+        PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+        Page<Card> cardPage = new PageImpl<>(testCards, pageRequest, 100);
+
+        // When startId is negative, it should call findAll without Specification
+        when(cardRepository.findAll(any(PageRequest.class))).thenReturn(cardPage);
+
+        // When
+        Page<Card> result = cardService.getAllCards(page, limit, negativeStartId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(3);
+        verify(cardRepository).findAll(pageRequest);
+    }
+
+    @Test
+    @DisplayName("Should handle startId filter with null value")
+    void getAllCards_WithNullStartId_ReturnsAllCards() {
+        // Given
+        int page = 1;
+        int limit = 24;
+        PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+        Page<Card> cardPage = new PageImpl<>(testCards, pageRequest, 100);
+
+        when(cardRepository.findAll(any(PageRequest.class))).thenReturn(cardPage);
+
+        // When
+        Page<Card> result = cardService.getAllCards(page, limit, null);
 
         // Then
         assertThat(result).isNotNull();

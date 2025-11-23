@@ -2,9 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import Cards from './Cards'
+import * as cardApi from '../api/cardApi'
 
-// Mock fetch
-global.fetch = vi.fn()
+// Mock the API module
+vi.mock('../api/cardApi')
 
 describe('Cards', () => {
   const mockCardsData = {
@@ -38,11 +39,13 @@ describe('Cards', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset mock implementation
+    cardApi.fetchCards.mockResolvedValue(mockCardsData)
   })
 
   const renderCards = (initialSearchParams = '') => {
     const Wrapper = ({ children }) => (
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         {children}
       </BrowserRouter>
     )
@@ -53,29 +56,24 @@ describe('Cards', () => {
   }
 
   it('renders loading state initially', () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockCardsData,
-    })
+    cardApi.fetchCards.mockImplementation(() => new Promise(() => {})) // Never resolves
     renderCards()
     expect(screen.getByText('Loading cards...')).toBeInTheDocument()
   })
 
   it('fetches and displays cards', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockCardsData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(mockCardsData)
     renderCards()
     
     await waitFor(() => {
       expect(screen.getByText('Blue-Eyes White Dragon')).toBeInTheDocument()
     })
     expect(screen.getByText('Dark Magician')).toBeInTheDocument()
+    expect(cardApi.fetchCards).toHaveBeenCalledWith({ page: null, firstCard: null, limit: 24 })
   })
 
   it('displays pagination info', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockCardsData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(mockCardsData)
     renderCards()
     
     await waitFor(() => {
@@ -93,9 +91,7 @@ describe('Cards', () => {
         totalPages: 3,
       },
     }
-    fetch.mockResolvedValueOnce({
-      json: async () => paginationData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(paginationData)
     renderCards('page=2')
     
     await waitFor(() => {
@@ -110,9 +106,7 @@ describe('Cards', () => {
   })
 
   it('disables previous button on first page', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockCardsData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(mockCardsData)
     renderCards()
     
     await waitFor(() => {
@@ -131,9 +125,7 @@ describe('Cards', () => {
         totalPages: 3,
       },
     }
-    fetch.mockResolvedValueOnce({
-      json: async () => lastPageData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(lastPageData)
     renderCards('page=3')
     
     await waitFor(() => {
@@ -143,7 +135,7 @@ describe('Cards', () => {
   })
 
   it('handles fetch error', async () => {
-    fetch.mockRejectedValueOnce(new Error('Network error'))
+    cardApi.fetchCards.mockRejectedValueOnce(new Error('Network error'))
     renderCards()
     
     await waitFor(() => {
@@ -152,22 +144,16 @@ describe('Cards', () => {
   })
 
   it('handles firstCard parameter', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockCardsData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(mockCardsData)
     renderCards('firstCard=1')
     
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('firstCard=1')
-      )
+      expect(cardApi.fetchCards).toHaveBeenCalledWith({ page: null, firstCard: 1, limit: 24 })
     })
   })
 
   it('handles empty cards array', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => ({ cards: [], pagination: null }),
-    })
+    cardApi.fetchCards.mockResolvedValueOnce({ cards: [], pagination: null })
     renderCards()
     
     await waitFor(() => {
@@ -185,9 +171,7 @@ describe('Cards', () => {
         totalPages: 3,
       },
     }
-    fetch.mockResolvedValueOnce({
-      json: async () => paginationData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(paginationData)
     renderCards('page=2')
     
     await waitFor(() => {
@@ -203,9 +187,7 @@ describe('Cards', () => {
   })
 
   it('handles response without cards property', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => ({ pagination: mockCardsData.pagination }),
-    })
+    cardApi.fetchCards.mockResolvedValueOnce({ cards: [], pagination: mockCardsData.pagination })
     renderCards()
     
     await waitFor(() => {
@@ -214,9 +196,7 @@ describe('Cards', () => {
   })
 
   it('handles pagination with firstCard parameter', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockCardsData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(mockCardsData)
     renderCards('firstCard=1')
     
     await waitFor(() => {
@@ -225,9 +205,7 @@ describe('Cards', () => {
   })
 
   it('handles updatePagination with firstCard', async () => {
-    fetch.mockResolvedValueOnce({
-      json: async () => mockCardsData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(mockCardsData)
     renderCards()
     
     await waitFor(() => {
@@ -250,9 +228,7 @@ describe('Cards', () => {
         totalPages: 3,
       },
     }
-    fetch.mockResolvedValueOnce({
-      json: async () => paginationData,
-    })
+    cardApi.fetchCards.mockResolvedValueOnce(paginationData)
     renderCards('page=2')
     
     await waitFor(() => {

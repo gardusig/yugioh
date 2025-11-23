@@ -2,9 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import DeckDetail from './DeckDetail'
+import * as deckApi from '../api/deckApi'
 
-// Mock fetch
-global.fetch = vi.fn()
+// Mock the API module
+vi.mock('../api/deckApi')
 
 describe('DeckDetail', () => {
   const mockDeckData = {
@@ -32,11 +33,13 @@ describe('DeckDetail', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset mock implementation
+    deckApi.fetchDeckById.mockResolvedValue(mockDeckData)
   })
 
   const renderDeckDetail = (deckId = '1') => {
     const Wrapper = ({ children }) => (
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/decks/:id" element={children} />
         </Routes>
@@ -47,16 +50,13 @@ describe('DeckDetail', () => {
   }
 
   it('renders loading state initially', () => {
-    fetch.mockImplementation(() => new Promise(() => {})) // Never resolves
+    deckApi.fetchDeckById.mockImplementation(() => new Promise(() => {})) // Never resolves
     renderDeckDetail()
     expect(screen.getByText('Loading deck...')).toBeInTheDocument()
   })
 
   it('fetches and displays deck', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockDeckData,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(mockDeckData)
     renderDeckDetail()
     
     await waitFor(() => {
@@ -66,13 +66,11 @@ describe('DeckDetail', () => {
     // There might be multiple instances, so use getAllByText
     expect(screen.getAllByText(/Yugi Muto/).length).toBeGreaterThan(0)
     expect(screen.getByText('Spellcaster')).toBeInTheDocument()
+    expect(deckApi.fetchDeckById).toHaveBeenCalledWith(1)
   })
 
   it('displays deck cards', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockDeckData,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(mockDeckData)
     renderDeckDetail()
     
     await waitFor(() => {
@@ -81,10 +79,7 @@ describe('DeckDetail', () => {
   })
 
   it('displays preset badge', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockDeckData,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(mockDeckData)
     renderDeckDetail()
     
     await waitFor(() => {
@@ -93,10 +88,7 @@ describe('DeckDetail', () => {
   })
 
   it('displays cost information', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockDeckData,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(mockDeckData)
     renderDeckDetail()
     
     await waitFor(() => {
@@ -106,9 +98,7 @@ describe('DeckDetail', () => {
   })
 
   it('handles deck not found', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: false,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(null)
     renderDeckDetail()
     
     await waitFor(() => {
@@ -117,7 +107,7 @@ describe('DeckDetail', () => {
   })
 
   it('handles fetch error', async () => {
-    fetch.mockRejectedValueOnce(new Error('Network error'))
+    deckApi.fetchDeckById.mockRejectedValueOnce(new Error('Network error'))
     renderDeckDetail()
     
     await waitFor(() => {
@@ -130,10 +120,7 @@ describe('DeckDetail', () => {
       ...mockDeckData,
       cards: [],
     }
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => deckWithoutCards,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(deckWithoutCards)
     renderDeckDetail()
     
     await waitFor(() => {
@@ -146,10 +133,7 @@ describe('DeckDetail', () => {
       ...mockDeckData,
       description: null,
     }
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => deckWithoutDesc,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(deckWithoutDesc)
     renderDeckDetail()
     
     await waitFor(() => {
@@ -162,10 +146,7 @@ describe('DeckDetail', () => {
       ...mockDeckData,
       characterName: null,
     }
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => deckWithoutChar,
-    })
+    deckApi.fetchDeckById.mockResolvedValueOnce(deckWithoutChar)
     renderDeckDetail()
     
     await waitFor(() => {

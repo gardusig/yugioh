@@ -6,7 +6,7 @@ import DeckDetail from './pages/DeckDetail'
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen bg-yugioh-gradient relative overflow-hidden">
         {/* Animated background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

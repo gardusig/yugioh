@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Card3D from '../components/Card3D'
-
-const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? 'http://localhost:8080' : '/api')
+import { fetchCards as fetchCardsApi } from '../api/cardApi'
 
 function Cards() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -17,29 +16,15 @@ function Cards() {
   const firstCard = firstCardParam ? parseInt(firstCardParam, 10) : null
 
   useEffect(() => {
-    fetchCards()
+    loadCards()
   }, [page, firstCard])
 
-  const fetchCards = async () => {
+  const loadCards = async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams()
-      if (firstCard) {
-        params.append('firstCard', firstCard)
-      } else if (page) {
-        params.append('page', page)
-      } else {
-        params.append('page', '1')
-      }
-      params.append('limit', '24')
-      
-      const apiUrl = import.meta.env.DEV 
-        ? `${API_BASE}/cards?${params.toString()}`
-        : `/api/cards?${params.toString()}`
-      const response = await fetch(apiUrl)
-      const data = await response.json()
-      setCards(data.cards || [])
-      setPagination(data.pagination)
+      const result = await fetchCardsApi({ page, firstCard, limit: 24 })
+      setCards(result.cards)
+      setPagination(result.pagination)
     } catch (error) {
       console.error('Error fetching cards:', error)
     } finally {
