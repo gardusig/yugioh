@@ -4,8 +4,11 @@ This folder contains detailed documentation that was moved from the main README 
 
 ## Available Documentation
 
-- **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Detailed project directory structure and file descriptions
+- **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Access URLs, services overview, and usage guides
+- **[DATABASE_MAINTENANCE.md](./DATABASE_MAINTENANCE.md)** - Database commands and sample data setup
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Local development setup and build instructions
 - **[API_ENDPOINTS.md](./API_ENDPOINTS.md)** - Complete API endpoint documentation with examples
+- **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Detailed project directory structure and file descriptions
 - **[DATABASE_MIGRATIONS.md](./DATABASE_MIGRATIONS.md)** - Database schema, migrations, and data import instructions
 - **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues and solutions
 - **[TECHNOLOGY_STACK.md](./TECHNOLOGY_STACK.md)** - Complete list of technologies and tools used
