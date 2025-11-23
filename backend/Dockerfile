@@ -1,14 +1,14 @@
-# Build stage
-FROM maven:3.9-eclipse-temurin-17 AS builder
+# Build stage - OpenJDK 21 (Eclipse Temurin)
+FROM gradle:8.5-jdk21 AS builder
 WORKDIR /app
-COPY pom.xml .
+COPY build.gradle.kts settings.gradle.kts ./
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN gradle clean build -x test --no-daemon
 
-# Runtime stage
-FROM eclipse-temurin:17-jre-jammy
+# Runtime stage - OpenJDK 21 JRE (Eclipse Temurin)
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 RUN apt-get update && apt-get upgrade -y && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=builder /app/build/libs/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

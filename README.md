@@ -1,8 +1,14 @@
 # Yu-Gi-Oh! The Sacred Cards
 
-![Java](https://img.shields.io/badge/Java-ED8B00?logo=openjdk![Java](https://img.shields.io/badge/Java-ED8B00?logo=openjdk&logoColor=white)logoColor=white) ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
-![React](https://img.shields.io/badge/React-61DAFB?logo=react![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)logoColor=black) ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
-![Python](https://img.shields.io/badge/Python-3776AB?logo=python![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)logoColor=white) ![Scripts Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
+![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white) ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
+
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black) ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
+
+![Python 3.9](https://img.shields.io/badge/Python%203.9-3776AB?logo=python&logoColor=white) ![Scripts Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
+
+
+
+
 
 A full-stack web application for browsing all 900 cards and character decks from **Yu-Gi-Oh! The Sacred Cards**. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker**.
 
@@ -19,10 +25,11 @@ A full-stack web application for browsing all 900 cards and character decks from
 ## Prerequisites
 
 - **Docker Desktop** - Required for running the application (all services are containerized)
-- **Java 17+** (optional) - For local backend development
-- **Maven 3.9+** (optional) - For local backend development
+- **OpenJDK 21+** (optional) - For local backend development (Eclipse Temurin recommended)
 - **Node.js 20+** (optional) - For local frontend development
 - **npm** (optional) - For local frontend development
+
+**Note**: The backend uses Gradle wrapper (`gradlew`), so Gradle doesn't need to be installed separately. The wrapper will download Gradle automatically on first use.
 
 ## Quick Start
 
@@ -164,7 +171,8 @@ To generate larger SQL imports (e.g., all 900 cards), run `crawl_cards.py` to pr
 │   ├── src/main/resources/
 │   │   ├── application.properties    # Application configuration
 │   │   └── db/migration/             # Flyway database migrations
-│   ├── pom.xml                      # Maven dependencies
+│   ├── build.gradle.kts              # Gradle build configuration
+│   ├── settings.gradle.kts           # Gradle settings
 │   └── Dockerfile                   # Backend container definition
 ├── frontend/                        # React + Tailwind CSS frontend
 │   ├── src/                         # React source code
@@ -303,8 +311,9 @@ If you need a large batch of card inserts:
 Example (Docker + psql):
 
 ```bash
-docker-compose run --rm scripts python3 crawl_cards.py --start 1 --end 50 > /tmp/cards.sql
-cat /tmp/cards.sql | docker exec -i yugioh-database psql -U yugioh_user -d yugioh_db
+docker-compose run --rm scripts python3 src/crawl_cards.py --start 1 --end 50 > cards.sql
+cat cards.sql | docker exec -i yugioh-database psql -U yugioh_user -d yugioh_db
+rm cards.sql
 ```
 
 ## Development
@@ -319,17 +328,18 @@ Before pushing code, you can run the same checks that GitHub Actions will run:
 ```
 
 This script will:
-- **Backend**: Check for unused imports (Spotless Maven plugin) and run unit tests (using Mockito mocks, no database required)
+- **Backend**: Check for unused imports (Spotless Gradle plugin) and run unit tests (using Mockito mocks, no database required)
 - **Frontend**: Install dependencies, build check (Vite), run unit tests (Vitest), and check for unused dependencies
-- **Badges**: Automatically update README badges with current test status and coverage percentages
+- **Scripts**: Run Python unit tests with coverage
+- **Badges**: Automatically update README badges with current test status and coverage percentages (green if tests pass, red if they fail)
 
-**Note**: All tests use mocks and don't require a running database. The README badges will be updated with the current test results and coverage percentages after all checks complete.
+**Note**: All tests use mocks and don't require a running database. The README badges will be updated with the actual coverage percentages from test results (e.g., 60% shown as green if tests pass).
 
 ### Run Backend Locally
 
 ```bash
 cd backend
-mvn spring-boot:run
+./gradlew bootRun
 ```
 
 The API will be available at http://localhost:8080
@@ -352,10 +362,10 @@ The frontend will be available at http://localhost:3000 (Vite default port)
 
 ```bash
 cd backend
-mvn clean package
+./gradlew clean build
 ```
 
-The JAR file will be created in `target/yugioh-api-1.0.0.jar`
+The JAR file will be created in `build/libs/yugioh-api-1.0.0.jar`
 
 ### Build Frontend
 
@@ -407,11 +417,11 @@ If Swagger UI doesn't load:
 ## Technology Stack
 
 ### Backend
-- **Java 17** - Programming language
-- **Spring Boot 3.2.0** - Application framework
+- **OpenJDK 21** - Programming language (latest LTS, Eclipse Temurin distribution)
+- **Spring Boot 3.3.0** - Application framework
 - **Spring Data JPA** - Database access layer
 - **Springdoc OpenAPI** - API documentation (Swagger)
-- **Maven** - Build tool and dependency management
+- **Gradle 8.5** - Build tool and dependency management
 - **Flyway** - Database migrations
 
 ### Frontend
