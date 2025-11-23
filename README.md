@@ -3,7 +3,7 @@
 ![Backend Coverage](https://img.shields.io/badge/backend%20coverage-100%25-brightgreen)
 ![Frontend Coverage](https://img.shields.io/badge/frontend%20coverage-100%25-brightgreen)
 
-A full-stack web application for browsing all 900 cards and character decks from **Yu-Gi-Oh! The Sacred Cards**. Built with **Java Spring Boot** backend, **PostgreSQL** database, and a modern **React + Tailwind CSS** frontend, all containerized with **Docker**.
+A full-stack web application for browsing all 900 cards and character decks from **Yu-Gi-Oh! The Sacred Cards**. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker**.
 
 ## Features
 
@@ -13,7 +13,7 @@ A full-stack web application for browsing all 900 cards and character decks from
 - **Deck Details**: View full deck compositions with all 40 cards
 - **Pagination**: Efficient pagination for both cards and decks
 - **Swagger/OpenAPI**: Interactive API documentation with Swagger UI
-- **Scriptable Data Management**: Reset, truncate, and reseed the database via `scripts/db_manager.py`
+- **Scriptable Data Management**: Reset, clear, and reseed the database via `scripts/src/db_manager.py`
 
 ## Prerequisites
 
@@ -78,7 +78,7 @@ Once the services are running, you can access:
 
 ## Database Maintenance & Sample Data
 
-Flyway now creates only the schema (`V1__initial_schema.sql`). All data management happens through `scripts/db_manager.py`. This keeps migrations fast and lets you decide when/how to populate the database.
+Flyway now creates only the schema (`V1__initial_schema.sql`). All data management happens through `scripts/src/db_manager.py`. This keeps migrations fast and lets you decide when/how to populate the database.
 
 ### Step-by-step: clear DB and load the first 10 cards (001-010)
 
@@ -87,10 +87,10 @@ Flyway now creates only the schema (`V1__initial_schema.sql`). All data manageme
 docker-compose up -d database
 
 # 2. Clear all data but keep the tables
-docker-compose run --rm scripts python3 db_manager.py truncate-all
+docker-compose run --rm scripts python3 src/db_manager.py clear-all
 
 # 3. Seed the first 10 iconic cards
-docker-compose run --rm scripts python3 db_manager.py seed --cards
+docker-compose run --rm scripts python3 src/db_manager.py seed --cards
 ```
 
 ### Other useful commands
@@ -99,12 +99,12 @@ docker-compose run --rm scripts python3 db_manager.py seed --cards
 
 | Goal | Command |
 |------|---------|
-| Drop & recreate entire schema (removes everything) | `docker-compose run --rm scripts python3 db_manager.py reset-db` |
-| Clear all rows but keep tables | `docker-compose run --rm scripts python3 db_manager.py truncate-all` |
-| Truncate a single table | `docker-compose run --rm scripts python3 db_manager.py truncate-table cards` (or `decks`, `deck_cards`) |
-| Seed the sample 10 iconic cards + 2 decks | `docker-compose run --rm scripts python3 db_manager.py seed` |
-| Seed only cards | `docker-compose run --rm scripts python3 db_manager.py seed --cards` |
-| Seed only decks (expects matching card IDs to exist) | `docker-compose run --rm scripts python3 db_manager.py seed --decks` |
+| Drop & recreate entire schema (removes everything) | `docker-compose run --rm scripts python3 src/db_manager.py reset-db` |
+| Clear all rows but keep tables | `docker-compose run --rm scripts python3 src/db_manager.py clear-all` |
+| Clear a single table | `docker-compose run --rm scripts python3 src/db_manager.py clear-table cards` (or `decks`, `deck_cards`) |
+| Seed the sample 10 iconic cards + 2 decks | `docker-compose run --rm scripts python3 src/db_manager.py seed` |
+| Seed only cards | `docker-compose run --rm scripts python3 src/db_manager.py seed --cards` |
+| Seed only decks (expects matching card IDs to exist) | `docker-compose run --rm scripts python3 src/db_manager.py seed --decks` |
 
 To generate larger SQL imports (e.g., all 900 cards), run `crawl_cards.py` to produce an export, then pipe it into `psql` or adapt the output inside `db_manager.py`. See `scripts/README.md` for details.
 
@@ -175,11 +175,18 @@ To generate larger SQL imports (e.g., all 900 cards), run `crawl_cards.py` to pr
 │   ├── vite.config.js               # Vite build configuration
 │   ├── tailwind.config.js           # Tailwind CSS configuration
 │   └── Dockerfile                   # Frontend container definition
-├── scripts/                         # Utility scripts and tools
-│   ├── crawl_cards.py               # Card data crawler
-│   ├── db_manager.py                # Reset/truncate/seed helper
+├── scripts/                         # Utility scripts and tools (Python)
+│   ├── src/                         # Source scripts
+│   │   ├── crawl_cards.py           # Card data crawler
+│   │   ├── db_manager.py            # Reset/clear/seed helper
+│   │   ├── gather_card_data.py      # Gather card data to CSV
+│   │   └── ...                      # Other utility scripts
+│   ├── tests/                       # Unit tests
 │   ├── Dockerfile                   # Scripts container definition
 │   └── README.md                    # Scripts documentation
+├── data/                            # Data files (CSV files)
+│   ├── card_list.csv                # Card names list
+│   └── cards_data.csv               # Complete card data (generated)
 └── docker-compose.yml               # Service orchestration
 ```
 
@@ -283,7 +290,7 @@ Flyway automatically runs SQL files inside `backend/src/main/resources/db/migrat
 
 - `V1__initial_schema.sql` — creates `cards`, `decks`, and `deck_cards`
 
-All data seeding is handled manually through `scripts/db_manager.py` to avoid long Flyway runtimes and to keep business data outside of migrations.
+All data seeding is handled manually through `scripts/src/db_manager.py` to avoid long Flyway runtimes and to keep business data outside of migrations.
 
 ### Generating / Importing Card Data
 
