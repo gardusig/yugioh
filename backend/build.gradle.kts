@@ -8,6 +8,7 @@ plugins {
 
 group = "com.yugioh"
 version = "1.0.0"
+description = "Yu-Gi-Oh! The Sacred Cards API - Full-stack web application for browsing cards and decks"
 
 java {
     toolchain {

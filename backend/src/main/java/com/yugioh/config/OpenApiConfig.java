@@ -19,7 +19,7 @@ public class OpenApiConfig {
                 .version("1.0.0")
                 .description("API for browsing all 900 cards and character decks from Yu-Gi-Oh! The Sacred Cards")
                 .contact(new Contact()
-                    .name("Yu-Gi-Oh! API")
+                    .name("Gustavo Gardusi")
                     .email("api@yugioh.com")))
             .servers(List.of(
                 new Server().url("http://localhost:8080").description("Local development server"),

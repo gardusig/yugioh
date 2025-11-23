@@ -2,6 +2,8 @@
   "name": "yugioh-frontend",
   "version": "1.0.0",
   "type": "module",
+  "author": "Gustavo Gardusi",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
