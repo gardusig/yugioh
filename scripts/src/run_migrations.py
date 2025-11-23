@@ -216,8 +216,9 @@ def main():
     args = parser.parse_args()
 
     # Resolve migration directory path
-    script_dir = Path(__file__).parent
-    migration_dir = (script_dir / args.migration_dir).resolve()
+    # Script is in src/, but migrations/ is in scripts root, so go up one level
+    scripts_root = Path(__file__).parent.parent
+    migration_dir = (scripts_root / args.migration_dir).resolve()
 
     if not migration_dir.exists():
         print(f"[ERROR] Migration directory not found: {migration_dir}", file=sys.stderr)

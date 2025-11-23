@@ -17,8 +17,10 @@ NC='\033[0m' # No Color
 FAILED=0
 BACKEND_STATUS="unknown"
 FRONTEND_STATUS="unknown"
+SCRIPTS_STATUS="unknown"
 BACKEND_COVERAGE="0%"
 FRONTEND_COVERAGE="0%"
+SCRIPTS_COVERAGE="0%"
 
 # Function to print section headers
 print_section() {
@@ -54,6 +56,7 @@ check_command java || exit 1
 check_command mvn || exit 1
 check_command node || exit 1
 check_command npm || exit 1
+check_command python3 || exit 1
 
 # Check Java version
 JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
@@ -70,6 +73,16 @@ if [ "$NODE_VERSION" -lt 20 ]; then
     exit 1
 fi
 print_success "Node.js version check passed"
+
+# Check Python version
+PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1,2)
+PYTHON_MAJOR=$(echo "$PYTHON_VERSION" | cut -d'.' -f1)
+PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d'.' -f2)
+if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 9 ]); then
+    print_error "Python 3.9 or higher is required. Found: Python $PYTHON_VERSION"
+    exit 1
+fi
+print_success "Python version check passed"
 
 # Backend checks
 print_section "Backend - Java/Maven"
@@ -142,17 +155,23 @@ if npm run test 2>&1 | tee /tmp/frontend-test-output.txt; then
     FRONTEND_STATUS="passing"
     
     # Extract coverage from Vitest output
-    # Look for coverage percentage in the output
-    if grep -qi "100%" /tmp/frontend-test-output.txt; then
-        FRONTEND_COVERAGE="100%"
-    else
-        # Try to extract percentage from coverage report
-        COVERAGE_PCT=$(grep -oP '\d+\.\d+%' /tmp/frontend-test-output.txt | head -1 | sed 's/%//' || echo "100")
-        if [ -n "$COVERAGE_PCT" ] && [ "$COVERAGE_PCT" != "100" ]; then
-            FRONTEND_COVERAGE="${COVERAGE_PCT}%"
+    # Look for "All files" line with coverage percentage
+    COVERAGE_LINE=$(grep "All files" /tmp/frontend-test-output.txt | head -1)
+    if [ -n "$COVERAGE_LINE" ]; then
+        # Extract percentage from the "All files" line (format: "All files | 99.28 | ...")
+        COVERAGE_PCT=$(echo "$COVERAGE_LINE" | awk -F'|' '{print $2}' | tr -d ' ' | sed 's/%//')
+        if [ -n "$COVERAGE_PCT" ]; then
+            # Round to integer
+            COVERAGE_INT=$(awk "BEGIN {printf \"%.0f\", $COVERAGE_PCT}")
+            FRONTEND_COVERAGE="${COVERAGE_INT}%"
         else
             FRONTEND_COVERAGE="100%"
         fi
+    else
+        # Fallback: try to find any percentage
+        COVERAGE_PCT=$(grep -oE '[0-9]+\.[0-9]+%' /tmp/frontend-test-output.txt | head -1 | sed 's/%//' || echo "100")
+        COVERAGE_INT=$(awk "BEGIN {printf \"%.0f\", $COVERAGE_PCT}")
+        FRONTEND_COVERAGE="${COVERAGE_INT}%"
     fi
 else
     print_error "Unit tests failed"
@@ -173,72 +192,119 @@ fi
 
 cd ..
 
+# Scripts checks
+print_section "Scripts - Python"
+
+cd scripts || exit 1
+
+echo "Installing Python dependencies..."
+if python3 -m pip install --quiet -r requirements.txt 2>&1 | tee /tmp/scripts-install-output.txt; then
+    print_success "Dependencies installed"
+else
+    print_error "Failed to install dependencies"
+fi
+
+echo "Running unit tests..."
+# Run tests and capture output (don't fail immediately if tests fail)
+python3 -m pytest tests/ --cov=src --cov-report=term --cov-report=term-missing 2>&1 | tee /tmp/scripts-test-output.txt
+TEST_EXIT_CODE=${PIPESTATUS[0]}
+
+# Extract coverage from pytest output (even if some tests failed)
+COVERAGE_LINE=$(grep "^TOTAL" /tmp/scripts-test-output.txt | tail -1)
+if [ -n "$COVERAGE_LINE" ]; then
+    # Extract percentage from last field: "TOTAL ... 92%" or "TOTAL ... 92.02%"
+    # The last field is the coverage percentage
+    COVERAGE_PCT=$(echo "$COVERAGE_LINE" | awk '{print $NF}' | sed 's/%//')
+    if [ -n "$COVERAGE_PCT" ] && [ "$COVERAGE_PCT" != "0" ]; then
+        # Round to integer if decimal
+        COVERAGE_INT=$(awk "BEGIN {printf \"%.0f\", $COVERAGE_PCT}")
+        SCRIPTS_COVERAGE="${COVERAGE_INT}%"
+    else
+        SCRIPTS_COVERAGE="100%"
+    fi
+else
+    SCRIPTS_COVERAGE="0%"
+fi
+
+# Check if tests passed (exit code 0)
+if [ "$TEST_EXIT_CODE" -eq 0 ]; then
+    print_success "Unit tests passed"
+    SCRIPTS_STATUS="passing"
+else
+    print_error "Unit tests failed"
+    SCRIPTS_STATUS="failing"
+    # Keep coverage if we extracted it, otherwise set to 0%
+    if [ "$SCRIPTS_COVERAGE" = "100%" ] && [ -z "$COVERAGE_LINE" ]; then
+        SCRIPTS_COVERAGE="0%"
+    fi
+fi
+
+cd ..
+
 # Update README badges
 print_section "Updating README Badges"
 
 README_FILE="README.md"
 
-# Create badge URLs
+# Create coverage badge URLs - green if tests pass, red if they fail
+# Backend coverage badge
 if [ "$BACKEND_STATUS" = "passing" ]; then
-    BACKEND_BADGE="https://img.shields.io/badge/backend%20tests-passing-brightgreen"
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-${BACKEND_COVERAGE}-brightgreen"
 else
-    BACKEND_BADGE="https://img.shields.io/badge/backend%20tests-${BACKEND_STATUS}-red"
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-${BACKEND_COVERAGE}-red"
 fi
 
+# Frontend coverage badge
 if [ "$FRONTEND_STATUS" = "passing" ]; then
-    FRONTEND_BADGE="https://img.shields.io/badge/frontend%20tests-passing-brightgreen"
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-${FRONTEND_COVERAGE}-brightgreen"
 else
-    FRONTEND_BADGE="https://img.shields.io/badge/frontend%20tests-${FRONTEND_STATUS}-red"
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-${FRONTEND_COVERAGE}-red"
 fi
 
-# Coverage badges - use green for 100%, yellow for 80-99%, red for <80%
-if [ "$BACKEND_COVERAGE" = "100%" ]; then
-    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-100%25-brightgreen"
-elif [ "$BACKEND_COVERAGE" = "N/A" ]; then
-    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-N%2FA-lightgrey"
+# Scripts coverage badge
+if [ "$SCRIPTS_STATUS" = "passing" ]; then
+    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts%20coverage-${SCRIPTS_COVERAGE}-brightgreen"
 else
-    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-${BACKEND_COVERAGE}-yellow"
+    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts%20coverage-${SCRIPTS_COVERAGE}-red"
 fi
 
-if [ "$FRONTEND_COVERAGE" = "100%" ]; then
-    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-100%25-brightgreen"
-else
-    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-${FRONTEND_COVERAGE}-yellow"
-fi
-
-# Update or add badges at the top of README
+# Update or add coverage badges at the top of README
 if grep -q "!\[Backend Coverage\]" "$README_FILE"; then
-    # Replace existing badges
+    # Replace existing coverage badges
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS sed
         sed -i '' "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE"
-        sed -i '' "s|!\[Backend Tests\](.*)|![Backend Tests]($BACKEND_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i '' "s|!\[Frontend Tests\](.*)|![Frontend Tests]($FRONTEND_BADGE)|" "$README_FILE" 2>/dev/null || true
         sed -i '' "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Scripts Coverage\](.*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+        # Remove old test status badges if they exist
+        sed -i '' "/!\[Backend Tests\]/d" "$README_FILE" 2>/dev/null || true
+        sed -i '' "/!\[Frontend Tests\]/d" "$README_FILE" 2>/dev/null || true
+        sed -i '' "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
     else
         # Linux sed
         sed -i "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE"
-        sed -i "s|!\[Backend Tests\](.*)|![Backend Tests]($BACKEND_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i "s|!\[Frontend Tests\](.*)|![Frontend Tests]($FRONTEND_BADGE)|" "$README_FILE" 2>/dev/null || true
         sed -i "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Scripts Coverage\](.*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+        # Remove old test status badges if they exist
+        sed -i "/!\[Backend Tests\]/d" "$README_FILE" 2>/dev/null || true
+        sed -i "/!\[Frontend Tests\]/d" "$README_FILE" 2>/dev/null || true
+        sed -i "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
     fi
 else
-    # Add badges after the title
+    # Add coverage badges after the title
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS sed
         sed -i '' "2i\\
 ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
-![Backend Tests]($BACKEND_BADGE)\\
 ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
-![Frontend Tests]($FRONTEND_BADGE)\\
+![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
     else
         # Linux sed
         sed -i "2i\\
 ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
-![Backend Tests]($BACKEND_BADGE)\\
 ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
-![Frontend Tests]($FRONTEND_BADGE)\\
+![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
     fi
 fi
@@ -250,8 +316,9 @@ print_section "Summary"
 
 echo -e "Backend Tests: ${BACKEND_STATUS} (Coverage: ${BACKEND_COVERAGE})"
 echo -e "Frontend Tests: ${FRONTEND_STATUS} (Coverage: ${FRONTEND_COVERAGE})"
+echo -e "Scripts Tests: ${SCRIPTS_STATUS} (Coverage: ${SCRIPTS_COVERAGE})"
 
-if [ $FAILED -eq 0 ] && [ "$BACKEND_STATUS" = "passing" ] && [ "$FRONTEND_STATUS" = "passing" ]; then
+if [ $FAILED -eq 0 ] && [ "$BACKEND_STATUS" = "passing" ] && [ "$FRONTEND_STATUS" = "passing" ] && [ "$SCRIPTS_STATUS" = "passing" ]; then
     echo -e "\n${GREEN}✓ All checks passed!${NC}"
     exit 0
 else

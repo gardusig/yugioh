@@ -3,13 +3,13 @@
 Database management utilities for the Yu-Gi-Oh! project.
 
 This script provides helper commands to:
-  - Reset or truncate database tables
+  - Reset or clear database tables
   - Seed sample cards and decks
 
 Usage examples (Local):
     python db_manager.py reset-db
-    python db_manager.py truncate-all
-    python db_manager.py truncate-table cards
+    python db_manager.py clear-all
+    python db_manager.py clear-table cards
     python db_manager.py seed --cards
     python db_manager.py seed --decks
     python db_manager.py seed
@@ -247,8 +247,8 @@ def reset_database():
     print("  python run_migrations.py")
 
 
-def truncate_all_tables():
-    """Truncate all domain tables but keep the schema."""
+def clear_all_tables():
+    """Clear all domain tables but keep the schema."""
     conn = get_connection()
     with conn, conn.cursor() as cur:
         # Check if tables exist
@@ -266,14 +266,14 @@ def truncate_all_tables():
             print("  python run_migrations.py", file=sys.stderr)
             sys.exit(1)
 
-        # Only truncate tables that exist
-        tables_to_truncate = ", ".join(existing_tables)
-        cur.execute(f"TRUNCATE TABLE {tables_to_truncate} RESTART IDENTITY CASCADE;")
-    print(f"[OK] Tables {', '.join(existing_tables)} truncated.")
+        # Only clear tables that exist
+        tables_to_clear = ", ".join(existing_tables)
+        cur.execute(f"TRUNCATE TABLE {tables_to_clear} RESTART IDENTITY CASCADE;")
+    print(f"[OK] Tables {', '.join(existing_tables)} cleared.")
 
 
-def truncate_table(table_name: str):
-    """Truncate a single table (cards, decks, or deck_cards)."""
+def clear_table(table_name: str):
+    """Clear a single table (cards, decks, or deck_cards)."""
     if table_name not in {"cards", "decks", "deck_cards"}:
         print(f"[ERROR] Unsupported table '{table_name}'.", file=sys.stderr)
         sys.exit(1)
@@ -302,7 +302,7 @@ def truncate_table(table_name: str):
             sys.exit(1)
 
         cur.execute(f"TRUNCATE TABLE {table_name} RESTART IDENTITY CASCADE;")
-    print(f"[OK] Table '{table_name}' truncated.")
+    print(f"[OK] Table '{table_name}' cleared.")
 
 
 def seed_cards(start_id=None, end_id=None):
@@ -457,8 +457,8 @@ def main():
         help="Drop and recreate the public schema. Requires rerunning Flyway migrations afterwards.",
     )
     subparsers.add_parser(
-        "truncate-all",
-        help="Truncate cards, decks, and deck_cards tables but keep the schema.",
+        "clear-all",
+        help="Clear all data from cards, decks, and deck_cards tables but keep the schema.",
     )
 
     subparsers.add_parser(
@@ -466,10 +466,10 @@ def main():
         help="Show database status (counts of cards, decks, etc.).",
     )
 
-    truncate_parser = subparsers.add_parser(
-        "truncate-table", help="Truncate a single table (cards, decks, deck_cards)."
+    clear_parser = subparsers.add_parser(
+        "clear-table", help="Clear all data from a single table (cards, decks, deck_cards)."
     )
-    truncate_parser.add_argument("table", choices=["cards", "decks", "deck_cards"])
+    clear_parser.add_argument("table", choices=["cards", "decks", "deck_cards"])
 
     seed_parser = subparsers.add_parser("seed", help="Seed cards and/or decks.")
     seed_parser.add_argument(
@@ -495,10 +495,10 @@ def main():
 
     if args.command == "reset-db":
         reset_database()
-    elif args.command == "truncate-all":
-        truncate_all_tables()
-    elif args.command == "truncate-table":
-        truncate_table(args.table)
+    elif args.command == "clear-all":
+        clear_all_tables()
+    elif args.command == "clear-table":
+        clear_table(args.table)
     elif args.command == "status":
         show_status()
     elif args.command == "seed":

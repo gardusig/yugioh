@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
+SCRIPTS_ROOT = SCRIPT_DIR.parent  # Go up from src/ to scripts/
 
 
 def main():
@@ -45,7 +46,7 @@ def main():
         subprocess.run(
             [
                 sys.executable,
-                str(SCRIPT_DIR / "data" / "crawl_cards.py"),
+                str(SCRIPT_DIR / "crawl_cards.py"),
                 "--start",
                 str(args.seed_range[0]),
                 "--end",
@@ -63,7 +64,7 @@ def main():
         subprocess.run(
             [
                 sys.executable,
-                str(SCRIPT_DIR / "data" / "crawl_cards.py"),
+                str(SCRIPT_DIR / "crawl_cards.py"),
                 "--start",
                 str(args.seed_range[0]),
                 "--end",

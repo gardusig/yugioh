@@ -10,7 +10,7 @@ Usage:
     python crawl_cards.py --start 1 --end 900 --workers 15
 
 This script:
-1. Loads card IDs and names from sacred_cards.csv
+1. Loads card IDs and names from card_list.csv
 2. Fetches card data from yugioh.fandom.com using parallel requests
 3. Extracts: name, type, level, ATK, DEF, cost, description, image, attribute, race, rarity
 4. Calculates tribute requirements based on level
@@ -34,7 +34,9 @@ from bs4 import BeautifulSoup
 # Base URLs
 WIKI_BASE_URL = "https://yugioh.fandom.com/wiki"
 DEFAULT_WORKERS = 10
-CARDS_CSV = Path(__file__).parent / "sacred_cards.csv"
+# Path to card_list.csv in project root/data directory
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CARDS_CSV = PROJECT_ROOT / "data" / "card_list.csv"
 
 # Fallback card back image
 CARD_BACK_IMAGE = "https://static.wikia.nocookie.net/yugioh/images/d/da/Back-JP.png/revision/latest?cb=20100726082049"
