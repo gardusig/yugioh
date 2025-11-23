@@ -247,25 +247,31 @@ print_section "Updating README Badges"
 README_FILE="README.md"
 
 # Create coverage badge URLs - green if tests pass, red if they fail
+# Remove % sign from coverage values for cleaner badge display
+# shields.io format: https://img.shields.io/badge/LABEL-VALUE-COLOR
+BACKEND_COVERAGE_VALUE=$(echo "$BACKEND_COVERAGE" | sed 's/%//g')
+FRONTEND_COVERAGE_VALUE=$(echo "$FRONTEND_COVERAGE" | sed 's/%//g')
+SCRIPTS_COVERAGE_VALUE=$(echo "$SCRIPTS_COVERAGE" | sed 's/%//g')
+
 # Backend coverage badge
 if [ "$BACKEND_STATUS" = "passing" ]; then
-    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-${BACKEND_COVERAGE}-brightgreen"
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend_coverage-${BACKEND_COVERAGE_VALUE}-brightgreen"
 else
-    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend%20coverage-${BACKEND_COVERAGE}-red"
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend_coverage-${BACKEND_COVERAGE_VALUE}-red"
 fi
 
 # Frontend coverage badge
 if [ "$FRONTEND_STATUS" = "passing" ]; then
-    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-${FRONTEND_COVERAGE}-brightgreen"
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend_coverage-${FRONTEND_COVERAGE_VALUE}-brightgreen"
 else
-    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend%20coverage-${FRONTEND_COVERAGE}-red"
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend_coverage-${FRONTEND_COVERAGE_VALUE}-red"
 fi
 
 # Scripts coverage badge
 if [ "$SCRIPTS_STATUS" = "passing" ]; then
-    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts%20coverage-${SCRIPTS_COVERAGE}-brightgreen"
+    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts_coverage-${SCRIPTS_COVERAGE_VALUE}-brightgreen"
 else
-    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts%20coverage-${SCRIPTS_COVERAGE}-red"
+    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts_coverage-${SCRIPTS_COVERAGE_VALUE}-red"
 fi
 
 # Update or add coverage badges at the top of README

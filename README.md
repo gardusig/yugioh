@@ -1,8 +1,8 @@
 # Yu-Gi-Oh! The Sacred Cards
 
-![Backend Coverage](https://img.shields.io/badge/backend%20coverage-100%-brightgreen)
-![Frontend Coverage](https://img.shields.io/badge/frontend%20coverage-99%-brightgreen)
-![Scripts Coverage](https://img.shields.io/badge/scripts%20coverage-99%-brightgreen)
+![Backend Coverage](https://img.shields.io/badge/backend_coverage-100-brightgreen)
+![Frontend Coverage](https://img.shields.io/badge/frontend_coverage-99-brightgreen)
+![Scripts Coverage](https://img.shields.io/badge/scripts_coverage-99-brightgreen)
 
 A full-stack web application for browsing all 900 cards and character decks from **Yu-Gi-Oh! The Sacred Cards**. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker**.
 
