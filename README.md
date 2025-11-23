@@ -1,10 +1,12 @@
 # Yu-Gi-Oh! The Sacred Cards
 
-![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white) ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
+![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white)    ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
 
-![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black) ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
+![React 18.2](https://img.shields.io/badge/React%2018.2-61DAFB?logo=react&logoColor=black)  ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
 
 ![Python 3.9](https://img.shields.io/badge/Python%203.9-3776AB?logo=python&logoColor=white) ![Scripts Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
+
+
 
 
 

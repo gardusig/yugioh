@@ -316,12 +316,14 @@ README_FILE="README.md"
 JAVA_VERSION=$(grep 'languageVersion = JavaLanguageVersion.of' backend/build.gradle.kts 2>/dev/null | grep -oE '[0-9]+' | head -1 || echo "21")
 # Python version (extract major.minor)
 PYTHON_VERSION=$(python3 --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1 || echo "3.9")
+# React version from package.json (extract major.minor)
+REACT_VERSION=$(node -e "try { const pkg = require('./frontend/package.json'); const react = pkg.dependencies.react || pkg.devDependencies.react; const version = react.replace(/[\^~]/g, '').split('.').slice(0, 2).join('.'); console.log(version); } catch(e) { console.log('18.2'); }" 2>/dev/null || echo "18.2")
 # Node version (extract major)
 NODE_VERSION=$(node -v 2>&1 | sed 's/v\([0-9]*\).*/\1/' || echo "20")
 
 # Language badges with versions (use %20 for spaces in badge labels)
 BACKEND_LANG_BADGE="https://img.shields.io/badge/Java%20${JAVA_VERSION}-ED8B00?logo=openjdk&logoColor=white"
-FRONTEND_LANG_BADGE="https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black"
+FRONTEND_LANG_BADGE="https://img.shields.io/badge/React%20${REACT_VERSION}-61DAFB?logo=react&logoColor=black"
 SCRIPTS_LANG_BADGE="https://img.shields.io/badge/Python%20${PYTHON_VERSION}-3776AB?logo=python&logoColor=white"
 
 # Coverage badges - include % character (encoded as %25 in URL)
@@ -371,12 +373,12 @@ if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend Coverage\]" "$READM
         sed -i '' "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
         # Remove empty lines after title if they exist
         sed -i '' '/^# Yu-Gi-Oh! The Sacred Cards$/{n;/^$/d;}' "$README_FILE" 2>/dev/null || true
-        # Add new badges with proper formatting after title
+        # Add new badges with proper formatting after title (with spacing for alignment)
         sed -i '' "/^# Yu-Gi-Oh! The Sacred Cards$/a\\
 \\
-![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE) ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE)    ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
 \\
-![React]($FRONTEND_LANG_BADGE) ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![React ${REACT_VERSION}]($FRONTEND_LANG_BADGE)  ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
 \\
 ![Python ${PYTHON_VERSION}]($SCRIPTS_LANG_BADGE) ![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
@@ -393,12 +395,12 @@ if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend Coverage\]" "$READM
         sed -i "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
         # Remove empty lines after title if they exist
         sed -i '/^# Yu-Gi-Oh! The Sacred Cards$/{n;/^$/d;}' "$README_FILE" 2>/dev/null || true
-        # Add new badges with proper formatting after title
+        # Add new badges with proper formatting after title (with spacing for alignment)
         sed -i "/^# Yu-Gi-Oh! The Sacred Cards$/a\\
 \\
-![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE) ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE)    ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
 \\
-![React]($FRONTEND_LANG_BADGE) ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![React ${REACT_VERSION}]($FRONTEND_LANG_BADGE)  ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
 \\
 ![Python ${PYTHON_VERSION}]($SCRIPTS_LANG_BADGE) ![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
@@ -406,20 +408,20 @@ if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend Coverage\]" "$READM
 else
     # Add language and coverage badges after the title (modern structure: language + coverage pairs with line breaks)
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS sed - add line breaks between each language pair
+        # macOS sed - add line breaks between each language pair (with spacing for alignment)
         sed -i '' "2i\\
-![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE) ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE)    ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
 \\
-![React]($FRONTEND_LANG_BADGE) ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![React ${REACT_VERSION}]($FRONTEND_LANG_BADGE)  ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
 \\
 ![Python ${PYTHON_VERSION}]($SCRIPTS_LANG_BADGE) ![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
     else
-        # Linux sed - add line breaks between each language pair
+        # Linux sed - add line breaks between each language pair (with spacing for alignment)
         sed -i "2i\\
-![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE) ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE)    ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
 \\
-![React]($FRONTEND_LANG_BADGE) ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![React ${REACT_VERSION}]($FRONTEND_LANG_BADGE)  ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
 \\
 ![Python ${PYTHON_VERSION}]($SCRIPTS_LANG_BADGE) ![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
