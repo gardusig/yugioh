@@ -246,40 +246,54 @@ print_section "Updating README Badges"
 
 README_FILE="README.md"
 
-# Create coverage badge URLs - green if tests pass, red if they fail
-# Remove % sign from coverage values for cleaner badge display
+# Create language and coverage badge URLs
+# Modern structure: separate language badge + coverage badge with %
 # shields.io format: https://img.shields.io/badge/LABEL-VALUE-COLOR
-BACKEND_COVERAGE_VALUE=$(echo "$BACKEND_COVERAGE" | sed 's/%//g')
-FRONTEND_COVERAGE_VALUE=$(echo "$FRONTEND_COVERAGE" | sed 's/%//g')
-SCRIPTS_COVERAGE_VALUE=$(echo "$SCRIPTS_COVERAGE" | sed 's/%//g')
+# Use %25 to encode % character in URLs
+
+# Language badges (static, informational)
+BACKEND_LANG_BADGE="https://img.shields.io/badge/Java-ED8B00?logo=openjdk&logoColor=white"
+FRONTEND_LANG_BADGE="https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black"
+SCRIPTS_LANG_BADGE="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white"
+
+# Coverage badges - include % character (encoded as %25 in URL)
+# Format: "Coverage: XX%" where % is encoded as %25
+BACKEND_COVERAGE_VALUE=$(echo "$BACKEND_COVERAGE" | sed 's/%/%25/g')
+FRONTEND_COVERAGE_VALUE=$(echo "$FRONTEND_COVERAGE" | sed 's/%/%25/g')
+SCRIPTS_COVERAGE_VALUE=$(echo "$SCRIPTS_COVERAGE" | sed 's/%/%25/g')
 
 # Backend coverage badge
 if [ "$BACKEND_STATUS" = "passing" ]; then
-    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend_coverage-${BACKEND_COVERAGE_VALUE}-brightgreen"
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/Coverage-${BACKEND_COVERAGE_VALUE}-brightgreen"
 else
-    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/backend_coverage-${BACKEND_COVERAGE_VALUE}-red"
+    BACKEND_COVERAGE_BADGE="https://img.shields.io/badge/Coverage-${BACKEND_COVERAGE_VALUE}-red"
 fi
 
 # Frontend coverage badge
 if [ "$FRONTEND_STATUS" = "passing" ]; then
-    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend_coverage-${FRONTEND_COVERAGE_VALUE}-brightgreen"
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/Coverage-${FRONTEND_COVERAGE_VALUE}-brightgreen"
 else
-    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/frontend_coverage-${FRONTEND_COVERAGE_VALUE}-red"
+    FRONTEND_COVERAGE_BADGE="https://img.shields.io/badge/Coverage-${FRONTEND_COVERAGE_VALUE}-red"
 fi
 
 # Scripts coverage badge
 if [ "$SCRIPTS_STATUS" = "passing" ]; then
-    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts_coverage-${SCRIPTS_COVERAGE_VALUE}-brightgreen"
+    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/Coverage-${SCRIPTS_COVERAGE_VALUE}-brightgreen"
 else
-    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/scripts_coverage-${SCRIPTS_COVERAGE_VALUE}-red"
+    SCRIPTS_COVERAGE_BADGE="https://img.shields.io/badge/Coverage-${SCRIPTS_COVERAGE_VALUE}-red"
 fi
 
-# Update or add coverage badges at the top of README
-if grep -q "!\[Backend Coverage\]" "$README_FILE"; then
-    # Replace existing coverage badges
+# Update or add language and coverage badges at the top of README
+# Modern structure: Language badge + Coverage badge for each component
+if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend" "$README_FILE"; then
+    # Replace existing badges
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS sed
-        sed -i '' "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE"
+        # macOS sed - replace language badges
+        sed -i '' "s|!\[Java\](.*)|![Java]($BACKEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[React\](.*)|![React]($FRONTEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Python\](.*)|![Python]($SCRIPTS_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        # Replace coverage badges
+        sed -i '' "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
         sed -i '' "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
         sed -i '' "s|!\[Scripts Coverage\](.*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
         # Remove old test status badges if they exist
@@ -287,8 +301,12 @@ if grep -q "!\[Backend Coverage\]" "$README_FILE"; then
         sed -i '' "/!\[Frontend Tests\]/d" "$README_FILE" 2>/dev/null || true
         sed -i '' "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
     else
-        # Linux sed
-        sed -i "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE"
+        # Linux sed - replace language badges
+        sed -i "s|!\[Java\](.*)|![Java]($BACKEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[React\](.*)|![React]($FRONTEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Python\](.*)|![Python]($SCRIPTS_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        # Replace coverage badges
+        sed -i "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
         sed -i "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
         sed -i "s|!\[Scripts Coverage\](.*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
         # Remove old test status badges if they exist
@@ -297,20 +315,20 @@ if grep -q "!\[Backend Coverage\]" "$README_FILE"; then
         sed -i "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
     fi
 else
-    # Add coverage badges after the title
+    # Add language and coverage badges after the title (modern structure: language + coverage pairs)
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS sed
         sed -i '' "2i\\
-![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
-![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
-![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
+![Java]($BACKEND_LANG_BADGE) ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![React]($FRONTEND_LANG_BADGE) ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![Python]($SCRIPTS_LANG_BADGE) ![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
     else
         # Linux sed
         sed -i "2i\\
-![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
-![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
-![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
+![Java]($BACKEND_LANG_BADGE) ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
+![React]($FRONTEND_LANG_BADGE) ![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)\\
+![Python]($SCRIPTS_LANG_BADGE) ![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)\\
 " "$README_FILE"
     fi
 fi
