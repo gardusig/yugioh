@@ -18,7 +18,7 @@ A full-stack web application for browsing all 900 cards and character decks from
 
 - **Card Browsing**: Browse Yu-Gi-Oh! The Sacred Cards data with pagination
 - **Deck Viewing**: View character decks with detailed information
-- **Card Details**: View complete card information including attributes, race, level, attack/defense, cost, and rarity
+- **Card Details**: View complete card information
 - **Deck Details**: View full deck compositions with all 40 cards
 - **Pagination**: Efficient pagination for both cards and decks
 - **Swagger/OpenAPI**: Interactive API documentation with Swagger UI
