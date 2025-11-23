@@ -1,8 +1,8 @@
 # Yu-Gi-Oh! The Sacred Cards
 
-![Java](https://img.shields.io/badge/Java-ED8B00?logo=openjdk![Java](https://img.shields.io/badge/Java-ED8B00?logo=openjdk&logoColor=white) ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
-![React](https://img.shields.io/badge/React-61DAFB?logo=react![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black) ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
-![Python](https://img.shields.io/badge/Python-3776AB?logo=python![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white) ![Scripts Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
+![Java](https://img.shields.io/badge/Java-ED8B00?logo=openjdk![Java](https://img.shields.io/badge/Java-ED8B00?logo=openjdk&logoColor=white)logoColor=white) ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)logoColor=black) ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)logoColor=white) ![Scripts Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
 
 A full-stack web application for browsing all 900 cards and character decks from **Yu-Gi-Oh! The Sacred Cards**. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker**.
 

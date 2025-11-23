@@ -285,30 +285,33 @@ fi
 
 # Update or add language and coverage badges at the top of README
 # Modern structure: Language badge + Coverage badge for each component
-if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend" "$README_FILE"; then
-    # Replace existing badges
+# Use more specific regex patterns to avoid partial matches
+
+if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend Coverage\]" "$README_FILE"; then
+    # Replace existing badges with more specific patterns
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS sed - replace language badges
-        sed -i '' "s|!\[Java\](.*)|![Java]($BACKEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i '' "s|!\[React\](.*)|![React]($FRONTEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i '' "s|!\[Python\](.*)|![Python]($SCRIPTS_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        # macOS sed - use [^)]* to match until closing parenthesis (non-greedy)
+        # Replace language badges - match from ![ to )
+        sed -i '' "s|!\[Java\]([^)]*)|![Java]($BACKEND_LANG_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[React\]([^)]*)|![React]($FRONTEND_LANG_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Python\]([^)]*)|![Python]($SCRIPTS_LANG_BADGE)|g" "$README_FILE" 2>/dev/null || true
         # Replace coverage badges
-        sed -i '' "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i '' "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i '' "s|!\[Scripts Coverage\](.*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Backend Coverage\]([^)]*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Frontend Coverage\]([^)]*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i '' "s|!\[Scripts Coverage\]([^)]*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|g" "$README_FILE" 2>/dev/null || true
         # Remove old test status badges if they exist
         sed -i '' "/!\[Backend Tests\]/d" "$README_FILE" 2>/dev/null || true
         sed -i '' "/!\[Frontend Tests\]/d" "$README_FILE" 2>/dev/null || true
         sed -i '' "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
     else
-        # Linux sed - replace language badges
-        sed -i "s|!\[Java\](.*)|![Java]($BACKEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i "s|!\[React\](.*)|![React]($FRONTEND_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i "s|!\[Python\](.*)|![Python]($SCRIPTS_LANG_BADGE)|" "$README_FILE" 2>/dev/null || true
+        # Linux sed - use non-greedy matching
+        sed -i "s|!\[Java\]([^)]*)|![Java]($BACKEND_LANG_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[React\]([^)]*)|![React]($FRONTEND_LANG_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Python\]([^)]*)|![Python]($SCRIPTS_LANG_BADGE)|g" "$README_FILE" 2>/dev/null || true
         # Replace coverage badges
-        sed -i "s|!\[Backend Coverage\](.*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i "s|!\[Frontend Coverage\](.*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
-        sed -i "s|!\[Scripts Coverage\](.*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Backend Coverage\]([^)]*)|![Backend Coverage]($BACKEND_COVERAGE_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Frontend Coverage\]([^)]*)|![Frontend Coverage]($FRONTEND_COVERAGE_BADGE)|g" "$README_FILE" 2>/dev/null || true
+        sed -i "s|!\[Scripts Coverage\]([^)]*)|![Scripts Coverage]($SCRIPTS_COVERAGE_BADGE)|g" "$README_FILE" 2>/dev/null || true
         # Remove old test status badges if they exist
         sed -i "/!\[Backend Tests\]/d" "$README_FILE" 2>/dev/null || true
         sed -i "/!\[Frontend Tests\]/d" "$README_FILE" 2>/dev/null || true
