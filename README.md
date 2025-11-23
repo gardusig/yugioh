@@ -22,7 +22,7 @@ A full-stack web application for browsing all 900 cards and character decks from
 - **Deck Details**: View full deck compositions with all 40 cards
 - **Pagination**: Efficient pagination for both cards and decks
 - **Swagger/OpenAPI**: Interactive API documentation with Swagger UI
-- **Scriptable Data Management**: Reset, clear, and reseed the database via `scripts/src/db_manager.py`
+- **Scriptable Data Management**: Reset, clear, and reseed the database
 
 ## Prerequisites
 
