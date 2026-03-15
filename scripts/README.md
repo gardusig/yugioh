@@ -1,114 +1,76 @@
-# Scripts Directory
+# Scripts — Data Management
 
-Simple scripts for retrieving card data and inserting into the database.
+Python tools for database setup and seeding. **Stack:** Python 3.11, psycopg2.
 
-## Directory Structure
+## Focus
 
-```
-scripts/
-├── src/                     # Source scripts
-│   ├── crawl_cards.py      # Crawl card data from yugioh.fandom.com (inserts to DB)
-│   ├── gather_card_data.py # Gather card data and save to CSV
-│   ├── check_db.py         # Check database state
-│   ├── db_manager.py        # Database management utilities
-│   ├── run_migrations.py   # Run database migrations
-│   └── setup.py             # Smart database setup (main entry point)
-├── data/                    # Data files
-│   └── card_list.csv       # Card names CSV (001-900)
-├── migrations/             # Database migration SQL files
-│   └── V1__initial_schema.sql
-└── tests/                  # Unit tests
-    └── test_db_manager.py
-```
+- Run migrations (schema creation)
+- Seed from `data/*.csv` (no network required)
+- Database maintenance (reset, clear, status)
 
-## Quick Start
+## First-Time Setup
 
-### Setup Database
+From the **project root**:
 
 ```bash
-cd scripts
-DB_HOST=localhost DB_PORT=5432 python3 src/setup.py
+./podman.sh up --build
 ```
 
-This will:
-- Check if database is empty
-- Run migrations if needed
-- Seed first 100 cards if needed
+The `scripts` service runs migrations and seeds from `data/*.csv` before the backend starts.
+
+**Run on-demand:**
+
+```bash
+# Full setup (migrations + seed)
+./podman.sh run --rm scripts
+
+# Reset DB and reseed (ensures clean state from data/*.csv)
+./podman.sh run --rm scripts scripts/src/db_manager.py reset-and-seed
+
+# Migrations only
+./podman.sh run --rm scripts scripts/src/run_migrations.py
+
+# Seed from CSV
+./podman.sh run --rm scripts scripts/src/seed_from_csv.py
+
+# DB status
+./podman.sh run --rm scripts scripts/src/check_db.py
+```
 
 ## Main Scripts
 
-### `src/setup.py`
-Smart database setup that checks state and only runs what's needed.
+| Script | Purpose |
+|--------|---------|
+| `src/setup.py` | Migrations + seed from CSV |
+| `src/db_manager.py reset-and-seed` | **Reset DB + migrations + seed** (use to ensure seeds are correct) |
+| `src/seed_from_csv.py` | Seed DB from `data/*.csv` |
+| `src/generate_cards_csv.py` | Generate `data/cards.csv` (`--fetch-images` all, `--fill-missing-images` empty only, `--verify-images` validate URLs) |
+| `src/run_migrations.py` | Run SQL migrations |
+| `src/check_db.py` | Check DB state (empty / needs seed / ready) |
+| `src/db_manager.py` | Reset, clear, seed, status |
 
-```bash
-python3 src/setup.py
-python3 src/setup.py --seed-range 1 100
-```
+## Environment Variables
 
-### `src/crawl_cards.py`
-Crawl card data from yugioh.fandom.com and insert into database.
+| Variable | Default |
+|----------|---------|
+| `DB_HOST` | localhost |
+| `DB_PORT` | 5432 |
+| `DB_NAME` | yugioh_db |
+| `DB_USER` | yugioh_user |
+| `DB_PASSWORD` | yugioh_password |
 
-```bash
-python3 src/crawl_cards.py --start 1 --end 100 --workers 10
-```
+## Data Files
 
-### `src/gather_card_data.py`
-Gather card data from yugioh.fandom.com and save to CSV file (for database insertion).
+- `data/card_list.csv` — Card IDs and names
+- `data/cards.csv` — Full card data (from `generate_cards_csv.py`)
+- `data/decks.csv` — Deck metadata
+- `data/deck_cards.csv` — Deck contents
 
-```bash
-python3 src/gather_card_data.py
-python3 src/gather_card_data.py --start 1 --end 100 --workers 10
-```
+See [data/README.md](../data/README.md) for CSV formats.
 
-This script:
-- Loads card names from `data/card_list.csv` (in project root)
-- Fetches complete card data from yugioh.fandom.com
-- Saves all card data to `data/cards_data.csv` (in project root)
-- The output CSV can be used for bulk database insertion
-
-### `src/run_migrations.py`
-Run database migrations from `migrations/` directory.
-
-```bash
-python3 src/run_migrations.py
-```
-
-### `src/check_db.py`
-Check database state:
-- Exit 0: Database is empty (needs migrations)
-- Exit 1: Database has tables but no cards (needs seeding)
-- Exit 2: Database is populated (ready)
-
-### `src/db_manager.py`
-Database management utilities for resetting, clearing, and seeding.
-
-```bash
-python3 src/db_manager.py reset-db
-python3 src/db_manager.py clear-all
-python3 src/db_manager.py seed --cards
-```
-
-### Running Tests
+## Tests
 
 ```bash
 cd scripts
 pytest
 ```
-
-Tests are located in `tests/` and can import modules from `src/` using `from src import <module>`.
-
-## Environment Variables
-
-All scripts use these environment variables (with defaults):
-- `DB_HOST` (default: localhost)
-- `DB_PORT` (default: 5432)
-- `DB_NAME` (default: yugioh_db)
-- `DB_USER` (default: yugioh_user)
-- `DB_PASSWORD` (default: yugioh_password)
-
-## Data Files
-
-All data files are located in the `data/` directory at the project root (not in `scripts/data/`):
-
-- `data/card_list.csv` - Contains all 900 card IDs and names from Yu-Gi-Oh! The Sacred Cards
-- `data/cards_data.csv` - Complete card data CSV (generated by `gather_card_data.py`) with all fields needed for database insertion

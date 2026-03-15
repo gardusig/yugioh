@@ -78,7 +78,7 @@ function Decks() {
             <div className="space-y-2 text-sm">
               {deck.characterName && (
                 <div>
-                  <span className="text-gray-400">Character: </span>
+                  <span className="text-gray-400">Owner: </span>
                   <span className="text-white">{deck.characterName}</span>
                 </div>
               )}

@@ -11,21 +11,21 @@ describe('App', () => {
   it('renders navigation', () => {
     renderApp()
     // Text appears in both nav and home page, so use getAllByText
-    expect(screen.getAllByText(/Yu-Gi-Oh! The Sacred Cards/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Yu-Gi-Oh! Deck Editor/).length).toBeGreaterThan(0)
     expect(screen.getByText('Cards')).toBeInTheDocument()
     expect(screen.getByText('Decks')).toBeInTheDocument()
   })
 
   it('renders home page', () => {
     renderApp()
-    expect(screen.getByText(/Welcome to Yu-Gi-Oh! The Sacred Cards/)).toBeInTheDocument()
+    expect(screen.getByText(/Welcome to Yu-Gi-Oh! Deck Editor/)).toBeInTheDocument()
     expect(screen.getByText('View Cards')).toBeInTheDocument()
     expect(screen.getByText('View Decks')).toBeInTheDocument()
   })
 
   it('renders home page description', () => {
     renderApp()
-    expect(screen.getByText(/Browse all 900 cards and explore character decks/)).toBeInTheDocument()
+    expect(screen.getByText(/Browse cards and build decks/)).toBeInTheDocument()
   })
 })
 

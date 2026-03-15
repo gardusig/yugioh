@@ -1,34 +1,21 @@
 #!/usr/bin/env python3
 """
-Smart database setup: Check database state and only run migrations/seeding if needed.
+Database setup: migrations + seed from data/*.csv (no network required).
 
 Usage:
     python setup.py
-    python setup.py --seed-range 1 100
 """
 
-import argparse
 import subprocess
 import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
-SCRIPTS_ROOT = SCRIPT_DIR.parent  # Go up from src/ to scripts/
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
+CARDS_CSV = PROJECT_ROOT / "data" / "cards.csv"
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Smart database setup")
-    parser.add_argument(
-        "--seed-range",
-        type=int,
-        nargs=2,
-        metavar=("START", "END"),
-        default=[1, 100],
-        help="Range of cards to seed (default: 1 100)",
-    )
-    args = parser.parse_args()
-
-    # Check database state
     print("Checking database state...")
     result = subprocess.run(
         [sys.executable, str(SCRIPT_DIR / "check_db.py")], capture_output=True, text=True
@@ -36,48 +23,25 @@ def main():
     db_state = result.returncode
 
     if db_state == 0:
-        # Database is empty - run migrations
         print("Database is empty - running migrations...")
         subprocess.run([sys.executable, str(SCRIPT_DIR / "run_migrations.py")], check=True)
         print("✓ Migrations completed")
 
-        # Seed cards
-        print(f"Seeding cards {args.seed_range[0]}-{args.seed_range[1]}...")
-        subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPT_DIR / "crawl_cards.py"),
-                "--start",
-                str(args.seed_range[0]),
-                "--end",
-                str(args.seed_range[1]),
-                "--workers",
-                "10",
-            ],
-            check=True,
-        )
+        if not CARDS_CSV.exists():
+            print("Generating data/cards.csv from card_list.csv...")
+            subprocess.run([sys.executable, str(SCRIPT_DIR / "generate_cards_csv.py")], check=True)
+        print("Seeding from data/*.csv...")
+        subprocess.run([sys.executable, str(SCRIPT_DIR / "seed_from_csv.py")], check=True)
         print("✓ Database setup complete")
 
     elif db_state == 1:
-        # Database has tables but no cards - seed data
-        print("Database has tables but no cards - seeding data...")
-        subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPT_DIR / "crawl_cards.py"),
-                "--start",
-                str(args.seed_range[0]),
-                "--end",
-                str(args.seed_range[1]),
-                "--workers",
-                "10",
-            ],
-            check=True,
-        )
+        if not CARDS_CSV.exists():
+            subprocess.run([sys.executable, str(SCRIPT_DIR / "generate_cards_csv.py")], check=True)
+        print("Seeding from data/*.csv...")
+        subprocess.run([sys.executable, str(SCRIPT_DIR / "seed_from_csv.py")], check=True)
         print("✓ Database seeded")
 
     elif db_state == 2:
-        # Database is already populated
         print("Database is already populated - skipping setup")
 
     elif db_state == 3:

@@ -1,4 +1,4 @@
-# Yu-Gi-Oh! The Sacred Cards
+# Yu-Gi-Oh! Deck Editor
 
 ![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white)    ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
 
@@ -12,12 +12,12 @@
 
 
 
-A full-stack web application for browsing all 900 cards and character decks from **Yu-Gi-Oh! The Sacred Cards**. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker**.
+A full-stack web application for browsing cards and building decks. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker** or **Podman**.
 
 ## Features
 
-- **Card Browsing**: Browse Yu-Gi-Oh! The Sacred Cards data with pagination
-- **Deck Viewing**: View character decks with detailed information
+- **Card Browsing**: Browse cards with pagination
+- **Deck Viewing**: View and manage decks with detailed information
 - **Card Details**: View complete card information
 - **Deck Details**: View full deck compositions with all 40 cards
 - **Pagination**: Efficient pagination for both cards and decks
@@ -26,7 +26,7 @@ A full-stack web application for browsing all 900 cards and character decks from
 
 ## Prerequisites
 
-- **Docker Desktop** - Required for running the application (all services are containerized)
+- **Docker** or **Podman** - Required for running the application (all services are containerized). Use `./podman.sh` to run with either.
 - **OpenJDK 21+** (optional) - For local backend development (Eclipse Temurin recommended)
 - **Node.js 20+** (optional) - For local frontend development
 - **npm** (optional) - For local frontend development
@@ -35,24 +35,32 @@ A full-stack web application for browsing all 900 cards and character decks from
 
 ## Quick Start
 
-### 1. Start the Application (all services)
+### 1. First-Time Setup
 
 ```bash
-# Start all services (database, API, frontend)
-docker-compose up --build
-
-# Stop services
-docker-compose down
+# Start all services (database → scripts → backend → frontend)
+# Uses Podman if available, otherwise Docker
+./podman.sh up --build
 ```
+
+On first run, the `scripts` service runs migrations and seeds the database from `data/*.csv` (no network required). The backend starts after that.
 
 ### 2. Start only the Database (for maintenance)
 
 ```bash
-# Launch PostgreSQL alone (useful for running scripts)
-docker-compose up -d database
+# Launch PostgreSQL alone (useful for running scripts locally)
+./podman.sh up -d database
 ```
 
-### 3. Access the Application
+### 3. Per-Folder Setup
+
+Each folder has its own README with first-time setup and runnable container instructions:
+
+- **[backend/README.md](./backend/README.md)** — Java Spring Boot API
+- **[frontend/README.md](./frontend/README.md)** — React + Vite UI
+- **[scripts/README.md](./scripts/README.md)** — Python data management
+
+### 4. Access the Application
 
 - **Frontend**: http://localhost:8082
 - **Swagger UI**: http://localhost:8080/swagger-ui.html

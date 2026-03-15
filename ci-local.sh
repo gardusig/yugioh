@@ -372,9 +372,9 @@ if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend Coverage\]" "$READM
         sed -i '' "/!\[Frontend Tests\]/d" "$README_FILE" 2>/dev/null || true
         sed -i '' "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
         # Remove empty lines after title if they exist
-        sed -i '' '/^# Yu-Gi-Oh! The Sacred Cards$/{n;/^$/d;}' "$README_FILE" 2>/dev/null || true
+        sed -i '' '/^# Yu-Gi-Oh! Deck Editor$/{n;/^$/d;}' "$README_FILE" 2>/dev/null || true
         # Add new badges with proper formatting after title (with spacing for alignment)
-        sed -i '' "/^# Yu-Gi-Oh! The Sacred Cards$/a\\
+        sed -i '' "/^# Yu-Gi-Oh! Deck Editor$/a\\
 \\
 ![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE)    ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
 \\
@@ -394,9 +394,9 @@ if grep -q "!\[Java\]" "$README_FILE" || grep -q "!\[Backend Coverage\]" "$READM
         sed -i "/!\[Frontend Tests\]/d" "$README_FILE" 2>/dev/null || true
         sed -i "/!\[Scripts Tests\]/d" "$README_FILE" 2>/dev/null || true
         # Remove empty lines after title if they exist
-        sed -i '/^# Yu-Gi-Oh! The Sacred Cards$/{n;/^$/d;}' "$README_FILE" 2>/dev/null || true
+        sed -i '/^# Yu-Gi-Oh! Deck Editor$/{n;/^$/d;}' "$README_FILE" 2>/dev/null || true
         # Add new badges with proper formatting after title (with spacing for alignment)
-        sed -i "/^# Yu-Gi-Oh! The Sacred Cards$/a\\
+        sed -i "/^# Yu-Gi-Oh! Deck Editor$/a\\
 \\
 ![Java ${JAVA_VERSION}]($BACKEND_LANG_BADGE)    ![Backend Coverage]($BACKEND_COVERAGE_BADGE)\\
 \\

@@ -8,8 +8,8 @@ Once the services are running, you can access:
 - **URL**: http://localhost:8082
 - **Description**: React + Tailwind CSS web interface for browsing cards and decks
 - **Features**:
-  - Browse all 900 cards with pagination
-  - View character decks
+  - Browse cards with pagination
+  - View and manage decks
   - Search and filter decks by archetype
   - View detailed deck compositions
   - Modern, responsive UI built with Tailwind CSS
@@ -43,7 +43,7 @@ Once the services are running, you can access:
 | **Swagger UI** | http://localhost:8080/swagger-ui.html | Interactive API documentation |
 | **API Docs** | http://localhost:8080/api-docs | OpenAPI 3.0 JSON specification |
 | **Database** | localhost:5432 | PostgreSQL database |
-| **Scripts** | N/A | Utility scripts container (run on-demand via `docker-compose run`) |
+| **Scripts** | N/A | Runs migrations + seed at startup; run on-demand via `docker-compose run scripts` |
 
 ## How to Use Swagger UI
 
@@ -64,7 +64,7 @@ Once the services are running, you can access:
 1. **Start the application**: `docker-compose up --build`
 2. **Open the Frontend**: Navigate to http://localhost:8082 in your browser
 3. **Browse Cards**:
-   - Click "Browse All Cards (001-900)" from the home page
+   - Click "View Cards" from the home page
    - Use pagination to navigate through cards
    - View card details including attack, defense, and cost
 4. **Browse Decks**:

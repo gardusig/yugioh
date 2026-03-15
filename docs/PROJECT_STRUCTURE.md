@@ -13,7 +13,7 @@
 │   │   └── dto/                     # Data transfer objects
 │   ├── src/main/resources/
 │   │   ├── application.properties    # Application configuration
-│   │   └── db/migration/             # Flyway database migrations
+│   │   └── application.properties   # App config (schema via scripts migrations)
 │   ├── build.gradle.kts              # Gradle build configuration
 │   ├── settings.gradle.kts           # Gradle settings
 │   └── Dockerfile                   # Backend container definition
@@ -29,16 +29,22 @@
 │   └── Dockerfile                   # Frontend container definition
 ├── scripts/                         # Utility scripts and tools (Python)
 │   ├── src/                         # Source scripts
-│   │   ├── crawl_cards.py           # Card data crawler
-│   │   ├── db_manager.py            # Reset/clear/seed helper
-│   │   ├── gather_card_data.py      # Gather card data to CSV
+│   │   ├── db_manager.py            # Reset, clear, seed, status
+│   │   ├── run_migrations.py       # Run database migrations
+│   │   ├── seed_from_csv.py        # Seed from data/*.csv
+│   │   ├── generate_cards_csv.py  # Generate cards.csv from card_list
 │   │   └── ...                      # Other utility scripts
+│   ├── migrations/                  # SQL migrations (Flyway-style)
+│   │   └── V1__initial_schema.sql
 │   ├── tests/                       # Unit tests
-│   ├── Dockerfile                   # Scripts container definition
+│   ├── Dockerfile                   # Scripts container (build from repo root)
 │   └── README.md                    # Scripts documentation
 ├── data/                            # Data files (CSV files)
-│   ├── card_list.csv                # Card names list
-│   └── cards_data.csv               # Complete card data (generated)
+│   ├── README.md                    # Data format and setup docs
+│   ├── card_list.csv                # Card IDs and names
+│   ├── cards.csv                    # Full card data (from generate_cards_csv.py)
+│   ├── decks.csv                    # Deck metadata
+│   └── deck_cards.csv               # Deck contents (deck_name, card_id, position)
 └── docker-compose.yml               # Service orchestration
 ```
 

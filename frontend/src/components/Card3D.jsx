@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-
-const CARD_BACK_IMAGE = "https://static.wikia.nocookie.net/yugioh/images/d/da/Back-JP.png/revision/latest?cb=20100726082049"
+import { CARD_BACK_IMAGE } from '../constants/cardImages'
 
 function Card3D({ card, onClick }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -51,9 +50,11 @@ function Card3D({ card, onClick }) {
   }
 
   const getTypeColor = (type) => {
-    if (type === 'Monster') return 'bg-red-600'
-    if (type === 'Spell') return 'bg-green-600'
-    if (type === 'Trap') return 'bg-pink-600'
+    if (!type) return 'bg-gray-600'
+    const t = type.toLowerCase()
+    if (t.includes('monster')) return 'bg-red-600'
+    if (t.includes('spell')) return 'bg-green-600'
+    if (t.includes('trap')) return 'bg-pink-600'
     return 'bg-gray-600'
   }
 
@@ -94,26 +95,15 @@ function Card3D({ card, onClick }) {
             {card.name}
           </h3>
 
-          {card.type === 'Monster' && (
-            <div className="flex gap-4 mb-2 text-sm">
-              <div>
-                <span className="text-gray-400">ATK:</span>
-                <span className="ml-1 font-bold text-red-400">{card.attackPoints}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">DEF:</span>
-                <span className="ml-1 font-bold text-blue-400">{card.defensePoints}</span>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-auto flex items-center justify-between">
-            <div className="text-xs text-gray-400">
-              {card.race && <div>Race: {card.race}</div>}
+          <div className="mt-auto flex items-end justify-between gap-2">
+            <div className="text-[10px] text-gray-400 leading-tight min-w-0">
+              {card.race && <div>Category: {card.race}</div>}
               {card.level > 0 && <div>Level: {card.level}</div>}
             </div>
-            <div className="bg-yugioh-accent text-yugioh-dark px-3 py-1 rounded-full font-bold text-sm shadow-lg">
-              Cost: {card.cost}
+            <div className="bg-yugioh-accent text-yugioh-dark px-2 py-0.5 rounded-full font-bold text-[10px] whitespace-nowrap shadow-lg shrink-0">
+              {card.type?.toLowerCase().includes('monster')
+                ? `ATK ${card.attackPoints == null || card.attackPoints === -1 ? '?' : card.attackPoints} / DEF ${card.defensePoints == null || card.defensePoints === -1 ? '?' : card.defensePoints}`
+                : '— / —'}
             </div>
           </div>
         </div>

@@ -62,7 +62,7 @@ describe('DeckDetail', () => {
     await waitFor(() => {
       expect(screen.getByText('Yugi Deck')).toBeInTheDocument()
     })
-    // Character name is displayed as "Character: Yugi Muto", so use a flexible matcher
+    // Owner is displayed as "Owner: Yugi Muto", so use a flexible matcher
     // There might be multiple instances, so use getAllByText
     expect(screen.getAllByText(/Yugi Muto/).length).toBeGreaterThan(0)
     expect(screen.getByText('Spellcaster')).toBeInTheDocument()
@@ -141,7 +141,7 @@ describe('DeckDetail', () => {
     })
   })
 
-  it('handles deck without character name', async () => {
+  it('handles deck without owner', async () => {
     const deckWithoutChar = {
       ...mockDeckData,
       characterName: null,

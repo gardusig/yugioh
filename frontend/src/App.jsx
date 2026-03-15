@@ -18,7 +18,7 @@ function App() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <Link to="/" className="text-2xl font-bold yugioh-text-glow text-yugioh-accent hover:text-yugioh-gold transition-colors">
-                ⚡ Yu-Gi-Oh! The Sacred Cards ⚡
+                ⚡ Yu-Gi-Oh! Deck Editor ⚡
               </Link>
               <div className="flex gap-6">
                 <Link 
@@ -43,10 +43,10 @@ function App() {
             <Route path="/" element={
               <div className="text-center py-20">
                 <h1 className="text-6xl font-bold mb-4 yugioh-text-glow text-yugioh-accent">
-                  Welcome to Yu-Gi-Oh! The Sacred Cards
+                  Welcome to Yu-Gi-Oh! Deck Editor
                 </h1>
                 <p className="text-xl text-gray-200 mb-8">
-                  Browse all 900 cards and explore character decks
+                  Browse cards and build decks
                 </p>
                 <div className="flex gap-4 justify-center">
                   <Link 

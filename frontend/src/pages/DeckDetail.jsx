@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Card3D from '../components/Card3D'
+import CardDetailModal from '../components/CardDetailModal'
 import { fetchDeckById } from '../api/deckApi'
 
 function DeckDetail() {
   const { id } = useParams()
   const [deck, setDeck] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedCard, setSelectedCard] = useState(null)
 
   useEffect(() => {
     loadDeck()
@@ -57,7 +59,7 @@ function DeckDetail() {
           <div>
             <h1 className="text-5xl font-bold yugioh-text-glow text-yugioh-accent mb-2">{deck.name}</h1>
             {deck.characterName && (
-              <p className="text-xl text-gray-300">Character: {deck.characterName}</p>
+              <p className="text-xl text-gray-300">Owner: {deck.characterName}</p>
             )}
           </div>
           {deck.isPreset && (
@@ -100,13 +102,17 @@ function DeckDetail() {
       <h2 className="text-4xl font-bold mb-6 yugioh-text-glow text-yugioh-accent">Cards in Deck</h2>
       
       {deck.cards && deck.cards.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 justify-items-center">
           {deck.cards.map((card) => (
-            <Card3D key={card.id} card={card} />
+            <Card3D key={card.id} card={card} onClick={() => setSelectedCard(card)} />
           ))}
         </div>
       ) : (
         <p className="text-center text-gray-400 py-10">No cards in this deck</p>
+      )}
+
+      {selectedCard && (
+        <CardDetailModal card={selectedCard} onClose={() => setSelectedCard(null)} />
       )}
     </div>
   )

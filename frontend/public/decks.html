@@ -258,7 +258,7 @@
 
             <div class="filters">
                 <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All Decks</button>
-                <button class="filter-btn" data-filter="preset" onclick="setFilter('preset')">Character Decks</button>
+                <button class="filter-btn" data-filter="preset" onclick="setFilter('preset')">Preset Decks</button>
                 <button class="filter-btn" data-filter="Insect" onclick="setFilter('Insect')">Insect</button>
                 <button class="filter-btn" data-filter="Fish" onclick="setFilter('Fish')">Fish</button>
                 <button class="filter-btn" data-filter="Dragon" onclick="setFilter('Dragon')">Dragon</button>
@@ -485,7 +485,7 @@
                 deckCard.innerHTML = `
                     <div class="deck-header">
                         <div class="deck-name">${deck.name}</div>
-                        ${deck.is_preset ? '<span class="deck-badge">Character Deck</span>' : ''}
+                        ${deck.is_preset ? '<span class="deck-badge">Preset</span>' : ''}
                     </div>
                     <div class="deck-owner">Owner: ${owner}</div>
                     <div class="deck-description">${deck.description || 'No description available'}</div>

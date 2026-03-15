@@ -1,6 +1,7 @@
 package com.yugioh.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,9 +32,11 @@ public class Card {
     private Integer level = 0; // Monster level (0 for Spell/Trap)
 
     @Column(name = "attack_points", nullable = false)
+    @Min(0)
     private Integer attackPoints = 0;
 
     @Column(name = "defense_points", nullable = false)
+    @Min(0)
     private Integer defensePoints = 0;
 
     @Column(nullable = false)

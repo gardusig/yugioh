@@ -13,7 +13,7 @@ All endpoints are publicly accessible - no authentication required.
 
 - `GET /decks` - List all decks with pagination
   - Query params: `page` (default: 1), `limit` (default: 20, max: 100), `archetype`, `preset` (true/false)
-  - Returns: Deck summaries with name, description, character_name, archetype, card_count, total_cost, max_cost
+  - Returns: Deck summaries with name, description, owner (character_name), archetype, card_count, total_cost, max_cost
 - `GET /decks/{id}` - Get deck by ID with full card details
 
 ## Health

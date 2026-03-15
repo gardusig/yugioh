@@ -8,7 +8,7 @@ plugins {
 
 group = "com.yugioh"
 version = "1.0.0"
-description = "Yu-Gi-Oh! The Sacred Cards API - Full-stack web application for browsing cards and decks"
+description = "Yu-Gi-Oh! Deck Editor API - Browse cards and manage decks"
 
 java {
     toolchain {
@@ -26,6 +26,9 @@ dependencies {
     
     // Spring Boot Data JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    
+    // Bean Validation
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     
     // PostgreSQL Driver
     runtimeOnly("org.postgresql:postgresql")

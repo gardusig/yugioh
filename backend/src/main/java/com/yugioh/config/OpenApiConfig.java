@@ -15,9 +15,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
             .info(new Info()
-                .title("Yu-Gi-Oh! The Sacred Cards API")
+                .title("Yu-Gi-Oh! Deck Editor API")
                 .version("1.0.0")
-                .description("API for browsing all 900 cards and character decks from Yu-Gi-Oh! The Sacred Cards")
+                .description("API for browsing cards and managing decks")
                 .contact(new Contact()
                     .name("Gustavo Gardusi")
                     .email("api@yugioh.com")))
