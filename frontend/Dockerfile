@@ -1,21 +1,25 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Yu-Gi-Oh! Deck Editor — Frontend (Node 20, React, Vite)
+# Build from frontend/. Stages: test (unit tests), builder (dist), default (nginx serve).
+#   Tests:  docker build --target test .
+#   Run:    docker build .
 
+# Stage: test — unit tests
+FROM node:20-alpine AS test
 WORKDIR /app
-
-# Copy package files
-COPY package.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy source files
+COPY package.json package-lock.json* ./
+RUN npm ci
 COPY . .
+RUN npm test
 
-# Build the app
+# Stage: builder — build dist
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+COPY . .
 RUN npm run build
 
-# Production stage
+# Stage: default — serve with nginx
 FROM nginx:alpine
 
 # Copy built files from builder

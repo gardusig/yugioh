@@ -34,17 +34,18 @@
 │   │   ├── seed_from_csv.py        # Seed from data/*.csv
 │   │   ├── generate_cards_csv.py  # Generate cards.csv from card_list
 │   │   └── ...                      # Other utility scripts
-│   ├── migrations/                  # SQL migrations (Flyway-style)
-│   │   └── V1__initial_schema.sql
 │   ├── tests/                       # Unit tests
-│   ├── Dockerfile                   # Scripts container (build from repo root)
+│   ├── Dockerfile                   # Stages: test, default (run); build from repo root
 │   └── README.md                    # Scripts documentation
-├── data/                            # Data files (CSV files)
+├── migrations/                      # SQL migrations (Flyway-style), run by scripts
+│   ├── V1__initial_schema.sql
+│   └── ...
+├── data/                            # Data files (CSV files, project root)
 │   ├── README.md                    # Data format and setup docs
 │   ├── card_list.csv                # Card IDs and names
 │   ├── cards.csv                    # Full card data (from generate_cards_csv.py)
 │   ├── decks.csv                    # Deck metadata
 │   └── deck_cards.csv               # Deck contents (deck_name, card_id, position)
-└── docker-compose.yml               # Service orchestration
+└── docker-compose.yml               # App stack; profile "test" for CI-style test builds
 ```
 

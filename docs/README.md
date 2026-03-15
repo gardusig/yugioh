@@ -4,6 +4,7 @@ This folder contains detailed documentation that was moved from the main README 
 
 ## Available Documentation
 
+- **[SETUP_AND_TESTS.md](./SETUP_AND_TESTS.md)** - Setup from scratch (Docker/Podman), running tests for backend, frontend, scripts
 - **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Access URLs, services overview, and usage guides
 - **[DATABASE_MAINTENANCE.md](./DATABASE_MAINTENANCE.md)** - Database commands and sample data setup
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Local development setup and build instructions

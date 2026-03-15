@@ -1,3 +1,9 @@
+# App stack: database → scripts (migrations + seed) → backend → frontend.
+# Run:  docker compose up --build
+#
+# Run all project tests (same as GitHub Actions CI, no DB):
+#   docker compose --profile test build
+
 services:
   scripts:
     build:
@@ -17,8 +23,8 @@ services:
         condition: service_healthy
     networks:
       - yugioh-network
-    # Runs migrations + seed, then exits. Backend waits for completion.
-    # Run on-demand: ./podman.sh run --rm scripts scripts/src/seed_from_csv.py
+    # Runs migrations + seed via setup.py, then exits. Backend waits for completion.
+    # On-demand: docker compose run --rm scripts scripts/src/db_manager.py migrate|seed|reset-and-seed
 
   database:
     image: postgres:16-alpine
@@ -79,10 +85,34 @@ services:
     networks:
       - yugioh-network
 
+  # --- Test stages (same as CI). Use: docker compose --profile test build ---
+  backend-test:
+    profiles:
+      - test
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: test
+
+  frontend-test:
+    profiles:
+      - test
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: test
+
+  scripts-test:
+    profiles:
+      - test
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile
+      target: test
+
 networks:
   yugioh-network:
     driver: bridge
 
 volumes:
   postgres_data:
-

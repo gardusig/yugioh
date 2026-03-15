@@ -1,21 +1,16 @@
 # Development
 
-## Local CI Checks
+Tests and full app run via **Docker** (or **Podman**) and **docker-compose**. See **[Setup and Tests](./SETUP_AND_TESTS.md)** for setup and per-project test commands.
 
-Before pushing code, you can run the same checks that GitHub Actions will run:
+**Run all project tests (same as GitHub Actions CI):** from repo root, no DB required:
 
 ```bash
-# Run all CI checks locally and update README badges
-./ci-local.sh
+docker compose --profile test build
 ```
 
-This script will:
-- **Backend**: Check for unused imports (Spotless Gradle plugin) and run unit tests (using Mockito mocks, no database required)
-- **Frontend**: Install dependencies, build check (Vite), run unit tests (Vitest), and check for unused dependencies
-- **Scripts**: Run Python unit tests with coverage
-- **Badges**: Automatically update README badges with current test status and coverage percentages (green if tests pass, red if they fail)
+*(With Podman: `podman compose --profile test build`.)*
 
-**Note**: All tests use mocks and don't require a running database. The README badges will be updated with the actual coverage percentages from test results (e.g., 60% shown as green if tests pass).
+The following sections are for **optional** local development (running backend or frontend on the host without containers).
 
 ## Run Backend Locally
 

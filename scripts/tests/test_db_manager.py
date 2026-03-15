@@ -107,9 +107,23 @@ def test_seed_calls_seed_from_csv(monkeypatch):
         assert "seed_from_csv.py" in str(call_args[1])
 
 
+def test_migrate_calls_run_migrations(monkeypatch):
+    with patch("subprocess.run") as mock_run:
+        db_manager.migrate()
+        mock_run.assert_called_once()
+        call_args = mock_run.call_args[0][0]
+        assert "run_migrations.py" in str(call_args[1])
+
+
 def test_main_seed(monkeypatch):
     with patch("subprocess.run"):
         monkeypatch.setattr(sys, "argv", ["db_manager.py", "seed"])
+        db_manager.main()
+
+
+def test_main_migrate(monkeypatch):
+    with patch("subprocess.run"):
+        monkeypatch.setattr(sys, "argv", ["db_manager.py", "migrate"])
         db_manager.main()
 
 

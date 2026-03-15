@@ -16,8 +16,10 @@ Static CSV files for seeding the database. **No network required** for first-tim
 The setup runs automatically when you start the stack:
 
 ```bash
-./podman.sh up --build
+docker compose up --build
 ```
+
+*With Podman: `podman compose -f docker-compose.yml up --build`.*
 
 This will:
 1. Run migrations
@@ -54,11 +56,13 @@ python3 scripts/src/generate_cards_csv.py --verify-images
 
 ```bash
 # Seed from CSV (no network)
-./podman.sh run --rm scripts scripts/src/seed_from_csv.py
+docker compose run --rm scripts scripts/src/seed_from_csv.py
 
 # Or locally (with DB running):
 DB_HOST=localhost python3 scripts/src/seed_from_csv.py
 ```
+
+*With Podman: `podman compose -f docker-compose.yml run --rm scripts ...`.*
 
 ## CSV Formats
 

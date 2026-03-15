@@ -1,80 +1,124 @@
 # Yu-Gi-Oh! Deck Editor
 
-![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white)    ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
-
-![React 18.2](https://img.shields.io/badge/React%2018.2-61DAFB?logo=react&logoColor=black)  ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
-
+![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white) ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)  
+![React 18.2](https://img.shields.io/badge/React%2018.2-61DAFB?logo=react&logoColor=black) ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)  
 ![Python 3.9](https://img.shields.io/badge/Python%203.9-3776AB?logo=python&logoColor=white) ![Scripts Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
 
+Full-stack app for browsing cards and building decks: **Spring Boot** API, **PostgreSQL**, **React** frontend, **Python** scripts for data. Everything runs with **Docker** (or Podman). You get card browsing with pagination, deck list and composition (40 cards), card details, and Swagger API docs; the DB can be reset, migrated, and seeded from CSV.
 
+---
 
+## Quick start
 
+1. **Prereqs:** [Docker](https://docs.docker.com/get-docker/) (or [Podman](https://podman.io/) + Compose). On macOS you can use [Homebrew](https://brew.sh) and [Docker Desktop](https://docs.docker.com/desktop/install/mac-install/).
+2. **Run the app** (from repo root):
+   ```bash
+   docker compose up --build
+   ```
+3. **Open:** [Frontend](http://localhost:8082) · [Swagger UI](http://localhost:8080/swagger-ui.html) · [Health](http://localhost:8080/healthcheck)  
+   First run runs migrations and seeds the DB from CSV automatically.
+4. **Run tests** (same as CI, no DB):
+   ```bash
+   docker compose --profile test build
+   ```
 
+*(With Podman: `podman compose -f docker-compose.yml up --build` and `podman compose -f docker-compose.yml --profile test build`.)*
 
+---
 
-A full-stack web application for browsing cards and building decks. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker** or **Podman**.
+## Index
 
-## Features
+- [Quick start](#quick-start)
+- [Setup (detailed)](#setup-detailed)
+- [Run & links](#run--links)
+- [Tests](#tests)
+- [Per-project](#per-project)
+- [Documentation guide](#documentation-guide)
 
-- **Card Browsing**: Browse cards with pagination
-- **Deck Viewing**: View and manage decks with detailed information
-- **Card Details**: View complete card information
-- **Deck Details**: View full deck compositions with all 40 cards
-- **Pagination**: Efficient pagination for both cards and decks
-- **Swagger/OpenAPI**: Interactive API documentation with Swagger UI
-- **Scriptable Data Management**: Reset, clear, and reseed the database
+---
 
-## Prerequisites
+## Setup (detailed)
 
-- **Docker** or **Podman** - Required for running the application (all services are containerized). Use `./podman.sh` to run with either.
-- **OpenJDK 21+** (optional) - For local backend development (Eclipse Temurin recommended)
-- **Node.js 20+** (optional) - For local frontend development
-- **npm** (optional) - For local frontend development
+Use **Docker** or **Podman**; no Java/Node/Python on the host required for the commands above.
 
-**Note**: The backend uses Gradle wrapper (`gradlew`), so Gradle doesn't need to be installed separately. The wrapper will download Gradle automatically on first use.
+**macOS (Terminal):**
 
-## Quick Start
+1. [Homebrew](https://brew.sh):  
+   `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+2. **Docker:** [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/) (includes `docker compose`).  
+   **Podman:** `brew install podman` then [Compose](https://github.com/containers/podman-compose) (e.g. `pip install podman-compose`).
+3. **Standalone compose only:** `brew install python` then `pip install docker-compose`; run `docker-compose -f docker-compose.yml up --build` from repo root.
 
-### 1. First-Time Setup
+More options (native runtimes, other OS): [docs/SETUP_AND_TESTS.md](docs/SETUP_AND_TESTS.md).
+
+---
+
+## Run & links
+
+| Link | Description |
+|------|-------------|
+| [**Frontend**](http://localhost:8082) | Cards grid, decks list; click a card for details, a deck for composition. |
+| [**Swagger UI**](http://localhost:8080/swagger-ui.html) | Interactive API docs; try `GET /cards`, `GET /decks`. |
+| [**Health**](http://localhost:8080/healthcheck) | Backend health check. |
+
+---
+
+## Tests
+
+Run all project tests the same way as GitHub Actions (no DB):
 
 ```bash
-# Start all services (database → scripts → backend → frontend)
-# Uses Podman if available, otherwise Docker
-./podman.sh up --build
+docker compose --profile test build
 ```
 
-On first run, the `scripts` service runs migrations and seeds the database from `data/*.csv` (no network required). The backend starts after that.
+Per project (from repo root):  
+`docker build -f backend/Dockerfile --target test ./backend` · same for `frontend` with `./frontend` · for scripts: `docker build -f scripts/Dockerfile --target test .`
 
-### 2. Start only the Database (for maintenance)
+Details and native runtimes: [.github/README.md](.github/README.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-```bash
-# Launch PostgreSQL alone (useful for running scripts locally)
-./podman.sh up -d database
-```
+---
 
-### 3. Per-Folder Setup
+## Per-project
 
-Each folder has its own README with first-time setup and runnable container instructions:
+| Project | Dockerfile | README |
+|---------|------------|--------|
+| Backend | [backend/Dockerfile](backend/Dockerfile) | [backend/README.md](backend/README.md) |
+| Frontend | [frontend/Dockerfile](frontend/Dockerfile) | [frontend/README.md](frontend/README.md) |
+| Scripts | [scripts/Dockerfile](scripts/Dockerfile) (stages: test, default; build from repo root) | [scripts/README.md](scripts/README.md) |
 
-- **[backend/README.md](./backend/README.md)** — Java Spring Boot API
-- **[frontend/README.md](./frontend/README.md)** — React + Vite UI
-- **[scripts/README.md](./scripts/README.md)** — Python data management
+---
 
-### 4. Access the Application
+## Documentation guide
 
-- **Frontend**: http://localhost:8082
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **API Docs**: http://localhost:8080/api-docs
-- **Health Check**: http://localhost:8080/healthcheck
+Use this to find the right doc. All live in **[docs/](docs/)** unless noted.
 
-## Documentation
+| When you want to… | Open |
+|-------------------|------|
+| **Get running** — setup, run app, run tests (Docker/Podman) | [SETUP_AND_TESTS](docs/SETUP_AND_TESTS.md) |
+| **Use the app** — URLs, Swagger, frontend usage | [GETTING_STARTED](docs/GETTING_STARTED.md) |
+| **Work on code** — run backend/frontend locally (no containers) | [DEVELOPMENT](docs/DEVELOPMENT.md) |
+| **Database** — reset, migrate, seed, check data | [DATABASE_MAINTENANCE](docs/DATABASE_MAINTENANCE.md) |
+| **Schema** — migrations, adding tables | [DATABASE_MIGRATIONS](docs/DATABASE_MIGRATIONS.md) |
+| **API** — endpoints, request/response examples | [API_ENDPOINTS](docs/API_ENDPOINTS.md) |
+| **Layout** — where things are in the repo | [PROJECT_STRUCTURE](docs/PROJECT_STRUCTURE.md) |
+| **Problems** — common errors and fixes | [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
+| **Stack** — technologies and tools | [TECHNOLOGY_STACK](docs/TECHNOLOGY_STACK.md) |
+| **CI / tests** — run tests like GitHub Actions | [.github/README](.github/README.md) |
+| **Docs index** — list of all docs | [docs/README](docs/README.md) |
+| **License** | [LICENSE](docs/LICENSE.md) |
 
-- **[Getting Started](./docs/GETTING_STARTED.md)** - Access URLs, services overview, and usage guides
-- **[Database Maintenance](./docs/DATABASE_MAINTENANCE.md)** - Database commands and sample data setup
-- **[Development](./docs/DEVELOPMENT.md)** - Local development setup and build instructions
-- **[API Endpoints](./docs/API_ENDPOINTS.md)** - Complete API documentation with examples
-- **[Project Structure](./docs/PROJECT_STRUCTURE.md)** - Directory structure and file descriptions
-- **[Database Migrations](./docs/DATABASE_MIGRATIONS.md)** - Schema, migrations, and data import instructions
-- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Technology Stack](./docs/TECHNOLOGY_STACK.md)** - Complete list of technologies used
-- **[License](./docs/LICENSE.md)** - License information
+---
+
+## Website preview
+
+Screenshots (add images under [docs/screenshots/](docs/screenshots/)):
+
+| Page | Preview |
+|------|---------|
+| Cards | [cards-page.png](docs/screenshots/cards-page.png) |
+| Card detail | [card-detail.png](docs/screenshots/card-detail.png) |
+| Decks list | [decks-list.png](docs/screenshots/decks-list.png) |
+| Deck detail | [deck-detail.png](docs/screenshots/deck-detail.png) |
+| Swagger UI | [swagger-ui.png](docs/screenshots/swagger-ui.png) |
+
+*(Links work once the image files exist in `docs/screenshots/`.)*

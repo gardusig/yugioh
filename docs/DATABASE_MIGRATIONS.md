@@ -1,10 +1,10 @@
 # Database Migrations
 
-Migrations are run by the **scripts** service using Flyway-style SQL files in `scripts/migrations/`:
+Migrations are run by the **scripts** service using Flyway-style SQL files in `migrations/` (project root):
 
 - `V1__initial_schema.sql` — creates `cards`, `decks`, and `deck_cards`
 
-The scripts service runs at startup (`./podman.sh up`) and executes migrations before the backend starts. All data seeding is from `data/*.csv` via `scripts/src/seed_from_csv.py`.
+The scripts service runs at startup when you bring the stack up (e.g. `docker compose up --build`): first **migrations** (create/update tables), then **seed** from `data/*.csv` via `scripts/src/seed_from_csv.py`. For manual control use `db_manager.py reset-db`, then `migrate`, then `seed` (or `reset-and-seed` for all three). With Podman: `podman compose -f docker-compose.yml up --build`.
 
 ## Adding Card Data
 

@@ -42,9 +42,9 @@ describe('Card3D', () => {
     expect(screen.getByText(/ATK \? \/ DEF \?/)).toBeInTheDocument()
   })
 
-  it('renders category and level', () => {
+  it('renders race and level', () => {
     render(<Card3D card={mockCard} />)
-    expect(screen.getByText(/Category: Dragon/)).toBeInTheDocument()
+    expect(screen.getByText('Dragon')).toBeInTheDocument()
     expect(screen.getByText(/Level: 8/)).toBeInTheDocument()
   })
 
@@ -66,10 +66,18 @@ describe('Card3D', () => {
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
-  it('handles image error', () => {
-    render(<Card3D card={mockCard} />)
-    const img = screen.getByAltText('Blue-Eyes White Dragon')
-    fireEvent.error(img)
+  it('retries image load on error and shows fallback with label after max retries', async () => {
+    const { rerender } = render(<Card3D card={mockCard} />)
+    const getImg = () => screen.getByAltText('Blue-Eyes White Dragon')
+    // First error triggers retry (retryCount 0 -> 1)
+    fireEvent.error(getImg())
+    await new Promise((r) => setTimeout(r, 450))
+    // Second error triggers retry (retryCount 1 -> 2)
+    fireEvent.error(getImg())
+    await new Promise((r) => setTimeout(r, 450))
+    // Third error triggers fallback
+    fireEvent.error(getImg())
+    expect(screen.getByText('Image not found')).toBeInTheDocument()
   })
 
   it('handles card without image', () => {

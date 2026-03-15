@@ -20,7 +20,7 @@ public class OpenApiConfig {
                 .description("API for browsing cards and managing decks")
                 .contact(new Contact()
                     .name("Gustavo Gardusi")
-                    .email("api@yugioh.com")))
+                    .email("gustavo.gardusi@gmail.com")))
             .servers(List.of(
                 new Server().url("http://localhost:8080").description("Local development server"),
                 new Server().url("http://backend:8080").description("Docker container server")

@@ -6,7 +6,7 @@
 - **Spring Data JPA** - Database access layer
 - **Springdoc OpenAPI** - API documentation (Swagger)
 - **Gradle 8.5** - Build tool and dependency management
-- **Scripts migrations** - Python-run SQL migrations (Flyway-style) in `scripts/migrations/`
+- **Scripts migrations** - Python-run SQL migrations (Flyway-style) in `migrations/` (project root)
 
 ## Frontend
 - **React 18** - UI library

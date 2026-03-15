@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
-Database management: reset, clear, seed from CSV, status.
+Database management: reset schema, run migrations, seed from CSV, status.
+
+Order for a clean setup: reset-db → migrate → seed
+  (Or use reset-and-seed to do all three.)
 
 Usage:
-    python db_manager.py reset-db
-    python db_manager.py reset-and-seed   # Full reset + migrations + seed
-    python db_manager.py clear-all
-    python db_manager.py clear-table cards
-    python db_manager.py seed
-    python db_manager.py status
+    python db_manager.py reset-db      # Clean everything (drop schema)
+    python db_manager.py migrate       # Run migrations only
+    python db_manager.py seed          # Seed from data/*.csv
+    python db_manager.py reset-and-seed   # reset-db + migrate + seed
+    python db_manager.py clear-all     # Truncate tables (keep schema)
+    python db_manager.py clear-table <name>
+    python db_manager.py status        # Counts only
 """
 
 import argparse
@@ -41,14 +45,20 @@ def get_connection():
 
 
 def reset_database():
-    """Drop and recreate the public schema."""
+    """Drop and recreate the public schema. Run migrate next to create tables."""
     conn = get_connection()
     with conn, conn.cursor() as cur:
         cur.execute("DROP SCHEMA public CASCADE;")
         cur.execute("CREATE SCHEMA public;")
         cur.execute("GRANT ALL ON SCHEMA public TO public;")
         cur.execute(f"GRANT ALL ON SCHEMA public TO {DB_SETTINGS['user']};")
-    print("[OK] Schema reset. Run migrations: python run_migrations.py")
+    print("[OK] Schema reset. Run migrations next: db_manager.py migrate")
+
+
+def migrate():
+    """Run SQL migrations only (creates/updates tables)."""
+    subprocess.run([sys.executable, str(SCRIPT_DIR / "run_migrations.py")], check=True)
+    print("[OK] Migrations completed")
 
 
 def clear_all_tables():
@@ -94,14 +104,14 @@ def seed():
 
 
 def reset_and_seed():
-    """Full reset: drop schema, run migrations, seed from data/*.csv."""
-    print("Resetting database...")
+    """Full reset: reset-db → migrate → seed from data/*.csv."""
+    print("1/3 Resetting database (drop schema)...")
     reset_database()
-    print("Running migrations...")
-    subprocess.run([sys.executable, str(SCRIPT_DIR / "run_migrations.py")], check=True)
-    print("Seeding from data/*.csv...")
+    print("2/3 Running migrations...")
+    migrate()
+    print("3/3 Seeding from data/*.csv...")
     seed()
-    print("[OK] Database reset and seeded successfully")
+    print("[OK] Database reset, migrated, and seeded")
 
 
 def show_status():
@@ -137,10 +147,11 @@ def main():
     parser = argparse.ArgumentParser(description="Database utilities")
     subparsers = parser.add_subparsers(dest="command")
 
-    subparsers.add_parser("reset-db", help="Drop and recreate schema")
-    subparsers.add_parser("reset-and-seed", help="Full reset + migrations + seed from data/*.csv")
-    subparsers.add_parser("clear-all", help="Clear all tables")
-    subparsers.add_parser("status", help="Show counts")
+    subparsers.add_parser("reset-db", help="Drop and recreate schema (clean everything)")
+    subparsers.add_parser("migrate", help="Run migrations only")
+    subparsers.add_parser("reset-and-seed", help="reset-db + migrate + seed (full clean setup)")
+    subparsers.add_parser("clear-all", help="Truncate all tables (keep schema)")
+    subparsers.add_parser("status", help="Show table counts")
     subparsers.add_parser("seed", help="Seed from data/*.csv")
     clear_parser = subparsers.add_parser("clear-table", help="Clear one table")
     clear_parser.add_argument("table", choices=["cards", "decks", "deck_cards"])
@@ -149,6 +160,8 @@ def main():
 
     if args.command == "reset-db":
         reset_database()
+    elif args.command == "migrate":
+        migrate()
     elif args.command == "reset-and-seed":
         reset_and_seed()
     elif args.command == "clear-all":

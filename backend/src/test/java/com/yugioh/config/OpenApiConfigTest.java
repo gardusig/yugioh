@@ -31,8 +31,8 @@ class OpenApiConfigTest {
         assertThat(info.getVersion()).isEqualTo("1.0.0");
         assertThat(info.getDescription()).contains("API for browsing cards");
         assertThat(info.getContact()).isNotNull();
-        assertThat(info.getContact().getName()).isEqualTo("Yu-Gi-Oh! API");
-        assertThat(info.getContact().getEmail()).isEqualTo("api@yugioh.com");
+        assertThat(info.getContact().getName()).isEqualTo("Gustavo Gardusi");
+        assertThat(info.getContact().getEmail()).isEqualTo("gustavo.gardusi@gmail.com");
 
         List<Server> servers = openAPI.getServers();
         assertThat(servers).isNotNull();
