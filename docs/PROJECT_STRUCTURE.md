@@ -49,7 +49,7 @@
 │   ├── cards.csv                    # Full card data (from generate_cards_csv.py)
 │   ├── decks.csv                    # Deck metadata
 │   └── deck_cards.csv               # Deck contents (deck_name, card_id, position)
-├── docs/                            # Documentation (see docs/README.md)
+├── docs/                            # Documentation (index in main README)
 │   ├── README.md                    # Docs index
 │   ├── TESTS.md                     # Run tests (per-project, Podman, native, CI)
 │   ├── SETUP_AND_TESTS.md           # Setup and run app (Docker/Podman)

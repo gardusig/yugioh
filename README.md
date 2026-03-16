@@ -65,7 +65,6 @@ Full-stack app for browsing cards and building decks: **Spring Boot** API, **Pos
 | **Layout** — repo structure | [PROJECT_STRUCTURE](docs/PROJECT_STRUCTURE.md) |
 | **Problems** — common errors and fixes | [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
 | **Stack** — technologies and tools | [TECHNOLOGY_STACK](docs/TECHNOLOGY_STACK.md) |
-| **All docs** | [docs/README](docs/README.md) |
 | **License** | [LICENSE](docs/LICENSE.md) |
 
 ---
