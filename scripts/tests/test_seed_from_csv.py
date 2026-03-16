@@ -44,11 +44,12 @@ class StubConnection:
 
 
 def test_get_data_dir():
-    """get_data_dir returns project_root/data."""
+    """get_data_dir returns a path ending in data (project_root/data)."""
     result = seed_from_csv.get_data_dir()
     assert result.name == "data"
-    assert "scripts" in str(result.parent)
-    assert result.parent.name == "yugioh" or "yugioh" in str(result)
+    # Path is .../something/data; in repo it's .../yugioh/data, in Docker .../app/data
+    assert len(result.parts) >= 2
+    assert result.parts[-1] == "data"
 
 
 def test_get_connection_success(monkeypatch):
@@ -177,7 +178,7 @@ def test_main_success(tmp_path, monkeypatch, capsys):
     """main seeds and prints success."""
     (tmp_path / "cards.csv").write_text(
         "id,name,type,attribute,race,level,attack_points,defense_points,cost,rarity,description,image\n"
-        "1,Card,Normal Monster,,,,0,0,0,,,"
+        "1,Card,Normal Monster,LIGHT,Dragon,4,0,0,4,,,"
     )
     (tmp_path / "decks.csv").write_text(
         "name,description,character_name,archetype,max_cost,is_preset\n"

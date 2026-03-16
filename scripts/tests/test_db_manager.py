@@ -193,20 +193,22 @@ def test_show_status_no_tables(patch_connection, capsys):
 
 
 def test_show_status_with_data(patch_connection, capsys):
+    # show_status: 3× COUNT(*) per table, then 1× COUNT(*) for cards, then MIN/MAX id
     patch_connection(
         fetchall_values=[[("cards",), ("decks",), ("deck_cards",)]],
-        fetchone_values=[(10,), (2,), (20,), (1, 900)],
+        fetchone_values=[(10,), (2,), (20,), (10,), (1, 900)],
     )
     db_manager.show_status()
     captured = capsys.readouterr()
-    assert "Database Status" in captured.out
+    assert "[Database Status]" in captured.out
     assert "Card ID range" in captured.out
 
 
 def test_main_status_command(monkeypatch, patch_connection):
+    # status command runs show_status: 2 tables → 2× COUNT(*), then 1× COUNT(*) for cards, then MIN/MAX
     patch_connection(
         fetchall_values=[[("cards",), ("decks",)]],
-        fetchone_values=[5, 2, (1, 900)],
+        fetchone_values=[(5,), (2,), (5,), (1, 900)],
     )
     monkeypatch.setattr(sys, "argv", ["db_manager.py", "status"])
     db_manager.main()

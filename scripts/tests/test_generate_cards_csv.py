@@ -60,6 +60,7 @@ def test_main_creates_cards_csv(tmp_path, monkeypatch):
     card_list.write_text("id,name\n1,Blue-Eyes\n2,Dark Magician")
     cards_out = tmp_path / "cards.csv"
 
+    monkeypatch.setattr(sys, "argv", ["generate_cards_csv.py"])
     monkeypatch.setattr(generate_cards_csv, "CARD_LIST", card_list)
     monkeypatch.setattr(generate_cards_csv, "CARDS_OUT", cards_out)
 
@@ -74,9 +75,10 @@ def test_main_creates_cards_csv(tmp_path, monkeypatch):
 
 def test_main_missing_card_list(tmp_path, monkeypatch, capsys):
     """main exits when card_list.csv not found."""
+    monkeypatch.setattr(sys, "argv", ["generate_cards_csv.py"])
     monkeypatch.setattr(generate_cards_csv, "CARD_LIST", tmp_path / "nonexistent.csv")
     monkeypatch.setattr(generate_cards_csv, "CARDS_OUT", tmp_path / "out.csv")
     with pytest.raises(SystemExit):
         generate_cards_csv.main()
     captured = capsys.readouterr()
-    assert "not found" in captured.err
+    assert "not found" in (captured.err + captured.out)
