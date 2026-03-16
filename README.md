@@ -96,11 +96,11 @@ Use this to find the right doc. All live in **[docs/](docs/)** unless noted.
 
 ## Website preview
 
-Screenshots (add images under [docs/screenshots/](docs/screenshots/)):
+Screenshots live in [docs/screenshots/](docs/screenshots/). Preview:
 
 | Page | Preview |
 |------|---------|
-| Cards | [cards-page.png](docs/screenshots/cards-page.png) |
-| Card detail | [card-detail.png](docs/screenshots/card-detail.png) |
-| Decks list | [decks-list.png](docs/screenshots/decks-list.png) |
-| Deck detail | [deck-detail.png](docs/screenshots/deck-detail.png) |
+| Cards | ![Cards page](docs/screenshots/cards-page.png) |
+| Card detail | ![Card detail](docs/screenshots/card-detail.png) |
+| Decks list | ![Decks list](docs/screenshots/decks-list.png) |
+| Deck composition | ![Deck composition](docs/screenshots/deck-details.png) |

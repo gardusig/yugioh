@@ -13,7 +13,7 @@ Browse cards, view decks, search by archetype, and inspect deck details.
 From the **project root**:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Frontend: http://localhost:8082

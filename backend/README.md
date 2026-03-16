@@ -13,7 +13,7 @@ Serves cards and decks via REST. Handles pagination, filtering, and OpenAPI/Swag
 From the **project root**:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 The backend runs at http://localhost:8080. Database and migrations are handled by other services.
@@ -21,7 +21,7 @@ The backend runs at http://localhost:8080. Database and migrations are handled b
 ### Option B: Local development
 
 1. **Prerequisites:** OpenJDK 21+, PostgreSQL 16
-2. **Database:** Start PostgreSQL (or `docker-compose up -d database`)
+2. **Database:** Start PostgreSQL (or `docker compose up -d database`)
 3. **Run:**
 
 ```bash
