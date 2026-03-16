@@ -6,16 +6,18 @@
 
 Full-stack app for browsing cards and building decks: **Spring Boot** API, **PostgreSQL**, **React** frontend, **Python** scripts for data. Everything runs with **Docker** (or Podman). You get card browsing with pagination, deck list and composition (40 cards), card details, and Swagger API docs; the DB can be reset, migrated, and seeded from CSV.
 
+**Setup:** For what to install (Docker, Podman, macOS/Homebrew, etc.), see **[Setup guide](docs/SETUP_AND_TESTS.md)**.
+
 ---
 
 ## Quick start
 
-1. **Prereqs:** [Docker](https://docs.docker.com/get-docker/) (or [Podman](https://podman.io/) + Compose). On macOS you can use [Homebrew](https://brew.sh) and [Docker Desktop](https://docs.docker.com/desktop/install/mac-install/).
+1. **Prereqs:** Docker or Podman + Compose — see [Setup guide](docs/SETUP_AND_TESTS.md) for install steps.
 2. **Run the app** (from repo root):
    ```bash
    docker compose up --build
    ```
-3. **Open:** [Frontend](http://localhost:8082) · [Swagger UI](http://localhost:8080/swagger-ui.html) · [Health](http://localhost:8080/healthcheck)  
+3. **Open:** http://localhost:8082 (frontend) · http://localhost:8080/swagger-ui.html (Swagger) · http://localhost:8080/healthcheck (health)  
    First run runs migrations and seeds the DB from CSV automatically.
 4. **Run tests** (same as CI, no DB):
    ```bash
@@ -29,7 +31,6 @@ Full-stack app for browsing cards and building decks: **Spring Boot** API, **Pos
 ## Index
 
 - [Quick start](#quick-start)
-- [Setup (detailed)](#setup-detailed)
 - [Run & links](#run--links)
 - [Tests](#tests)
 - [Per-project](#per-project)
@@ -37,29 +38,13 @@ Full-stack app for browsing cards and building decks: **Spring Boot** API, **Pos
 
 ---
 
-## Setup (detailed)
-
-Use **Docker** or **Podman**; no Java/Node/Python on the host required for the commands above.
-
-**macOS (Terminal):**
-
-1. [Homebrew](https://brew.sh):  
-   `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-2. **Docker:** [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/) (includes `docker compose`).  
-   **Podman:** `brew install podman` then [Compose](https://github.com/containers/podman-compose) (e.g. `pip install podman-compose`).
-3. **Standalone compose only:** `brew install python` then `pip install docker-compose`; run `docker-compose -f docker-compose.yml up --build` from repo root.
-
-More options (native runtimes, other OS): [docs/SETUP_AND_TESTS.md](docs/SETUP_AND_TESTS.md).
-
----
-
 ## Run & links
 
-| Link | Description |
-|------|-------------|
-| [**Frontend**](http://localhost:8082) | Cards grid, decks list; click a card for details, a deck for composition. |
-| [**Swagger UI**](http://localhost:8080/swagger-ui.html) | Interactive API docs; try `GET /cards`, `GET /decks`. |
-| [**Health**](http://localhost:8080/healthcheck) | Backend health check. |
+| Service     | URL | Description |
+|-------------|-----|-------------|
+| **Frontend** | http://localhost:8082 | Cards grid, decks list; click a card for details, a deck for composition. |
+| **Swagger UI** | http://localhost:8080/swagger-ui.html | Interactive API docs; try `GET /cards`, `GET /decks`. |
+| **Health** | http://localhost:8080/healthcheck | Backend health check. |
 
 ---
 
@@ -119,6 +104,3 @@ Screenshots (add images under [docs/screenshots/](docs/screenshots/)):
 | Card detail | [card-detail.png](docs/screenshots/card-detail.png) |
 | Decks list | [decks-list.png](docs/screenshots/decks-list.png) |
 | Deck detail | [deck-detail.png](docs/screenshots/deck-detail.png) |
-| Swagger UI | [swagger-ui.png](docs/screenshots/swagger-ui.png) |
-
-*(Links work once the image files exist in `docs/screenshots/`.)*

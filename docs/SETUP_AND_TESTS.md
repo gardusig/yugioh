@@ -11,6 +11,18 @@ This project uses **Docker** (or **Podman**) with **docker-compose**. The snippe
 
 You only need one of the two. No need to install Java, Node, or Python on the host to run the app or tests in containers.
 
+### What to install (by platform)
+
+**macOS (Terminal):**
+
+1. [Homebrew](https://brew.sh) (optional but useful):  
+   `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+2. **Docker:** [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/) (includes `docker compose`).  
+   **Podman:** `brew install podman` then [Compose](https://github.com/containers/podman-compose) (e.g. `pip install podman-compose`).
+3. **Standalone compose only:** `brew install python` then `pip install docker-compose`; run `docker-compose -f docker-compose.yml up --build` from repo root.
+
+**Other OS / native runtimes:** See [DEVELOPMENT.md](DEVELOPMENT.md) for running without containers (Java, Node, Python on the host).
+
 ---
 
 ## Setup from scratch
