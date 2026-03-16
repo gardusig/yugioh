@@ -86,6 +86,41 @@ const DEFAULT_THEME = {
 }
 
 /**
+ * Attribute → label colors (Yu-Gi-Oh! OCG/TCG attribute icon conventions).
+ * Key is lowercase; pass attribute with any casing.
+ */
+const ATTRIBUTE_COLORS = {
+  dark: { bg: '#37474f', text: '#eceff1' },       // dark gray/slate (DARK icon)
+  light: { bg: '#ffb300', text: '#1a1a1a' },      // amber/gold (LIGHT icon)
+  earth: { bg: '#6d4c41', text: '#fff8e1' },      // brown (EARTH icon)
+  fire: { bg: '#bf360c', text: '#ffffff' },        // deep orange-red (FIRE icon)
+  water: { bg: '#0277bd', text: '#ffffff' },       // blue (WATER icon)
+  wind: { bg: '#558b2f', text: '#ffffff' },        // green (WIND icon)
+  divine: { bg: '#7b1fa2', text: '#ffffff' },      // purple (DIVINE)
+}
+const DEFAULT_ATTRIBUTE_COLOR = { bg: '#546e7a', text: '#ffffff' }
+
+/** Race (Type/Category) label: single neutral color so Attribute stands out. */
+const RACE_LABEL_COLOR = { bg: '#455a64', text: '#eceff1' }
+
+/**
+ * @param {string} attribute - e.g. "DARK", "Light"
+ * @returns {{ bg: string, text: string }}
+ */
+export function getAttributeLabelColor(attribute) {
+  if (!attribute) return DEFAULT_ATTRIBUTE_COLOR
+  const key = String(attribute).toLowerCase()
+  return ATTRIBUTE_COLORS[key] ?? DEFAULT_ATTRIBUTE_COLOR
+}
+
+/**
+ * @returns {{ bg: string, text: string }}
+ */
+export function getRaceLabelColor() {
+  return RACE_LABEL_COLOR
+}
+
+/**
  * @param {string} type - Card type (e.g. "Normal Monster", "Effect Monster", "Spell Card")
  * @returns {{ borderColor: string, glow: string, tagBgColor: string, tagTextColor: string, frameBg: string }}
  */

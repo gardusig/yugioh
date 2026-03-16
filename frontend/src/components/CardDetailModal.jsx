@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { CARD_BACK_IMAGE, CARD_ARTWORK_CROP, IMAGE_NOT_FOUND_LABEL } from '../constants/cardImages'
-import { getCardTypeTheme } from '../constants/cardTypeTheme'
+import { getCardTypeTheme, getAttributeLabelColor, getRaceLabelColor } from '../constants/cardTypeTheme'
 
 const IMAGE_LOAD_MAX_RETRIES = 3
 
@@ -39,6 +39,8 @@ function CardDetailModal({ card, onClose }) {
   if (!card) return null
 
   const theme = getCardTypeTheme(card.type)
+  const attributeColor = card.attribute ? getAttributeLabelColor(card.attribute) : null
+  const raceColor = getRaceLabelColor()
   const cardImage = imageError || !card.image ? CARD_BACK_IMAGE : card.image
   const displayImage = showBack ? CARD_BACK_IMAGE : cardImage
   const showNotFoundLabel = !showBack && imageError
@@ -114,23 +116,31 @@ function CardDetailModal({ card, onClose }) {
         {/* Card details */}
         <div className="p-6 border-t border-gray-700">
           <h2 className="text-2xl font-bold text-white mb-3">{card.name}</h2>
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex flex-col gap-2 mb-3">
             <span
-              className="px-2 py-1 rounded text-xs font-bold"
+              className="px-2 py-1 rounded text-xs font-bold w-fit"
               style={{ backgroundColor: theme.tagBgColor, color: theme.tagTextColor }}
             >
               {card.type}
             </span>
-            {card.attribute && (
-              <span className="px-2 py-1 rounded text-xs font-bold bg-gray-600 text-white">
-                {card.attribute}
-              </span>
-            )}
-            {card.race && (
-              <span className="px-2 py-1 rounded text-xs font-bold bg-gray-600 text-white">
-                {card.race}
-              </span>
-            )}
+            <div className="flex flex-wrap gap-2">
+              {card.attribute && attributeColor && (
+                <span
+                  className="px-2 py-1 rounded text-xs font-bold"
+                  style={{ backgroundColor: attributeColor.bg, color: attributeColor.text }}
+                >
+                  {card.attribute}
+                </span>
+              )}
+              {card.race && (
+                <span
+                  className="px-2 py-1 rounded text-xs font-bold"
+                  style={{ backgroundColor: raceColor.bg, color: raceColor.text }}
+                >
+                  {card.race}
+                </span>
+              )}
+            </div>
           </div>
           {card.type?.toLowerCase().includes('monster') && (
             <div className="text-gray-300 text-sm mb-3 px-3 py-2 rounded bg-gray-700/80">

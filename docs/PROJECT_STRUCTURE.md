@@ -16,7 +16,8 @@
 │   │   └── application.properties   # App config (schema via scripts migrations)
 │   ├── build.gradle.kts              # Gradle build configuration
 │   ├── settings.gradle.kts           # Gradle settings
-│   └── Dockerfile                   # Backend container definition
+│   ├── Dockerfile                    # Backend container definition
+│   └── README.md                     # Backend docs
 ├── frontend/                        # React + Tailwind CSS frontend
 │   ├── src/                         # React source code
 │   │   ├── pages/                   # Page components
@@ -26,7 +27,8 @@
 │   ├── package.json                 # Node.js dependencies
 │   ├── vite.config.js               # Vite build configuration
 │   ├── tailwind.config.js           # Tailwind CSS configuration
-│   └── Dockerfile                   # Frontend container definition
+│   ├── Dockerfile                    # Frontend container definition
+│   └── README.md                     # Frontend docs
 ├── scripts/                         # Utility scripts and tools (Python)
 │   ├── src/                         # Source scripts
 │   │   ├── db_manager.py            # Reset, clear, seed, status
@@ -38,6 +40,7 @@
 │   ├── Dockerfile                   # Stages: test, default (run); build from repo root
 │   └── README.md                    # Scripts documentation
 ├── migrations/                      # SQL migrations (Flyway-style), run by scripts
+│   ├── README.md                     # Migrations overview
 │   ├── V1__initial_schema.sql
 │   └── ...
 ├── data/                            # Data files (CSV files, project root)
@@ -46,6 +49,23 @@
 │   ├── cards.csv                    # Full card data (from generate_cards_csv.py)
 │   ├── decks.csv                    # Deck metadata
 │   └── deck_cards.csv               # Deck contents (deck_name, card_id, position)
-└── docker-compose.yml               # App stack; profile "test" for CI-style test builds
+├── docs/                            # Documentation (see docs/README.md)
+│   ├── README.md                    # Docs index
+│   ├── CI_AND_TESTS.md              # Run tests like CI
+│   ├── SETUP_AND_TESTS.md           # Setup and test instructions
+│   ├── GETTING_STARTED.md           # App usage
+│   ├── DEVELOPMENT.md               # Local development
+│   ├── DATABASE_*.md                # DB maintenance and migrations
+│   ├── API_ENDPOINTS.md             # API reference
+│   ├── PROJECT_STRUCTURE.md         # This file
+│   ├── TROUBLESHOOTING.md           # Common issues
+│   ├── TECHNOLOGY_STACK.md          # Stack overview
+│   ├── LICENSE.md                   # License
+│   └── screenshots/                 # Screenshots for README
+├── .github/
+│   └── workflows/
+│       └── ci.yml                   # CI: backend, frontend, scripts tests
+├── docker-compose.yml               # App stack; profile "test" for CI-style test builds
+└── README.md                        # Main repo README (start here)
 ```
 

@@ -1,4 +1,4 @@
-# GitHub / CI
+# CI and tests
 
 ## Running the same tests as CI
 
@@ -12,7 +12,7 @@ From repo root:
 docker compose --profile test build
 ```
 
-Each service builds that project’s test image; the build runs the unit tests. No database required. With Podman: `podman compose --profile test build` (or use `podman build` per project below).
+Each service builds that project's test image; the build runs the unit tests. No database required. With Podman: `podman compose --profile test build` (or use `podman build` per project below).
 
 ### Per project (Docker)
 
@@ -40,10 +40,10 @@ cd scripts && pip install -r requirements.txt && python -m pytest tests/ --cov=s
 
 ## What CI does
 
-[`.github/workflows/ci.yml`](workflows/ci.yml) runs on **pull_request** and executes the same Docker builds:
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on **pull_request** and executes the same Docker builds:
 
 | Project  | Command |
-|----------|--------|
+|----------|---------|
 | backend  | `docker build -f backend/Dockerfile --target test ./backend` |
 | frontend | `docker build -f frontend/Dockerfile --target test ./frontend` |
 | scripts  | `docker build -f scripts/Dockerfile --target test .` |

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { CARD_BACK_IMAGE, CARD_ARTWORK_CROP, IMAGE_NOT_FOUND_LABEL } from '../constants/cardImages'
-import { getCardTypeTheme } from '../constants/cardTypeTheme'
+import { getCardTypeTheme, getAttributeLabelColor, getRaceLabelColor } from '../constants/cardTypeTheme'
 
 const IMAGE_LOAD_MAX_RETRIES = 3
 
@@ -56,18 +56,8 @@ function Card3D({ card, onClick }) {
 
   const theme = getCardTypeTheme(card?.type)
 
-  const getAttributeColor = (attribute) => {
-    const colors = {
-      Dark: 'bg-gray-800',
-      Light: 'bg-yellow-300 text-gray-900',
-      Earth: 'bg-amber-700',
-      Water: 'bg-blue-500',
-      Fire: 'bg-red-600',
-      Wind: 'bg-green-500',
-      Divine: 'bg-purple-500',
-    }
-    return colors[attribute] || 'bg-gray-600'
-  }
+  const attributeStyle = card?.attribute ? getAttributeLabelColor(card.attribute) : null
+  const raceStyle = getRaceLabelColor()
 
   return (
     <div
@@ -114,23 +104,31 @@ function Card3D({ card, onClick }) {
 
         {/* Card Info */}
         <div className="p-4 h-48 flex flex-col">
-          <div className="flex flex-wrap gap-2 mb-2">
+          <div className="flex flex-col gap-2 mb-2">
             <span
-              className="px-2 py-1 rounded text-xs font-bold"
+              className="px-2 py-1 rounded text-xs font-bold w-fit"
               style={{ backgroundColor: theme.tagBgColor, color: theme.tagTextColor }}
             >
               {card.type}
             </span>
-            {card.attribute && (
-              <span className={`px-2 py-1 rounded text-xs font-bold ${getAttributeColor(card.attribute)}`}>
-                {card.attribute}
-              </span>
-            )}
-            {card.race && (
-              <span className="px-2 py-1 rounded text-xs font-bold bg-gray-600 text-white">
-                {card.race}
-              </span>
-            )}
+            <div className="flex flex-wrap gap-2">
+              {card.attribute && (
+                <span
+                  className="px-2 py-1 rounded text-xs font-bold"
+                  style={{ backgroundColor: attributeStyle.bg, color: attributeStyle.text }}
+                >
+                  {card.attribute}
+                </span>
+              )}
+              {card.race && (
+                <span
+                  className="px-2 py-1 rounded text-xs font-bold"
+                  style={{ backgroundColor: raceStyle.bg, color: raceStyle.text }}
+                >
+                  {card.race}
+                </span>
+              )}
+            </div>
           </div>
 
           <h3 className="font-bold text-lg mb-2 text-white line-clamp-2">

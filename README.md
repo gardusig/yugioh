@@ -74,7 +74,7 @@ docker compose --profile test build
 Per project (from repo root):  
 `docker build -f backend/Dockerfile --target test ./backend` · same for `frontend` with `./frontend` · for scripts: `docker build -f scripts/Dockerfile --target test .`
 
-Details and native runtimes: [.github/README.md](.github/README.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+Details and native runtimes: [docs/CI_AND_TESTS.md](docs/CI_AND_TESTS.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ---
 
@@ -103,7 +103,7 @@ Use this to find the right doc. All live in **[docs/](docs/)** unless noted.
 | **Layout** — where things are in the repo | [PROJECT_STRUCTURE](docs/PROJECT_STRUCTURE.md) |
 | **Problems** — common errors and fixes | [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
 | **Stack** — technologies and tools | [TECHNOLOGY_STACK](docs/TECHNOLOGY_STACK.md) |
-| **CI / tests** — run tests like GitHub Actions | [.github/README](.github/README.md) |
+| **CI / tests** — run tests like GitHub Actions | [CI_AND_TESTS](docs/CI_AND_TESTS.md) |
 | **Docs index** — list of all docs | [docs/README](docs/README.md) |
 | **License** | [LICENSE](docs/LICENSE.md) |
 
