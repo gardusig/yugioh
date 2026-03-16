@@ -1,18 +1,23 @@
 # Development
 
-Tests and full app run via **Docker** (or **Podman**) and **docker-compose**. See **[Setup and Tests](./SETUP_AND_TESTS.md)** for setup and per-project test commands.
+**Run the app and tests in containers:** See [SETUP_AND_TESTS.md](SETUP_AND_TESTS.md) (setup, run app) and [TESTS.md](TESTS.md) (run tests, per-project, Podman, native).
 
-**Run all project tests (same as GitHub Actions CI):** from repo root, no DB required:
+The sections below are for **optional** local development — running backend or frontend on the host **without** Docker/Podman.
 
-```bash
-docker compose --profile test build
-```
+## Quick reference
 
-*(With Podman: `podman compose --profile test build`.)*
+| Task | Command | URL |
+|------|---------|-----|
+| **Run backend** | `cd backend && ./gradlew bootRun` | http://localhost:8080 |
+| **Run frontend** | `cd frontend && npm run dev` | http://localhost:3000 |
+| **Build backend** | `cd backend && ./gradlew clean build` | JAR in `build/libs/` |
+| **Build frontend** | `cd frontend && npm run build` | Output in `frontend/dist/` |
 
-The following sections are for **optional** local development (running backend or frontend on the host without containers).
+*Prereqs:* PostgreSQL running for backend; Node/npm for frontend. Frontend proxies `/api` to backend.
 
-## Run Backend Locally
+---
+
+## Run backend locally
 
 ```bash
 cd backend
@@ -23,7 +28,7 @@ The API will be available at http://localhost:8080
 
 **Note**: Make sure PostgreSQL is running and accessible. Update `application.properties` with your database credentials if needed.
 
-## Run Frontend Locally
+## Run frontend locally
 
 ```bash
 cd frontend
@@ -35,7 +40,7 @@ The frontend will be available at http://localhost:3000 (Vite default port)
 
 **Note**: The frontend will proxy API requests to `http://localhost:8080` as configured in `vite.config.js`.
 
-## Build Backend
+## Build backend
 
 ```bash
 cd backend
@@ -44,7 +49,7 @@ cd backend
 
 The JAR file will be created in `build/libs/yugioh-api-1.0.0.jar`
 
-## Build Frontend
+## Build frontend
 
 ```bash
 cd frontend

@@ -12,54 +12,32 @@ Full-stack app for browsing cards and building decks: **Spring Boot** API, **Pos
 
 ## Quick start
 
-1. **Prereqs:** Docker or Podman + Compose — see [Setup guide](docs/SETUP_AND_TESTS.md) for install steps.
-2. **Run the app** (from repo root):
+1. **Prereqs:** Docker + Compose — see [Setup guide](docs/SETUP_AND_TESTS.md) for install steps.
+2. **Run** (from repo root):
    ```bash
    docker compose up --build
    ```
-3. **Open:** http://localhost:8082 (frontend) · http://localhost:8080/swagger-ui.html (Swagger) · http://localhost:8080/healthcheck (health)  
-   First run runs migrations and seeds the DB from CSV automatically.
-4. **Run tests** (same as CI, no DB):
-   ```bash
-   docker compose --profile test build
-   ```
+3. **Open:**
 
-*(With Podman: `podman compose -f docker-compose.yml up --build` and `podman compose -f docker-compose.yml --profile test build`.)*
+   | Service | URL |
+   |---------|-----|
+   | **Frontend** | http://localhost:8082 |
+   | **Swagger UI** | http://localhost:8080/swagger-ui.html |
+   | **Health** | http://localhost:8080/healthcheck |
 
----
+   *First run runs migrations and seeds the DB from CSV automatically.*
 
-## Index
-
-- [Quick start](#quick-start)
-- [Run & links](#run--links)
-- [Tests](#tests)
-- [Per-project](#per-project)
-- [Documentation guide](#documentation-guide)
+4. **Tests** (no DB): `docker compose --profile test build` — see [Tests](docs/TESTS.md) for per-project commands and Podman.
 
 ---
 
 ## Run & links
 
-| Service     | URL | Description |
-|-------------|-----|-------------|
+| Service | URL | Description |
+|---------|-----|-------------|
 | **Frontend** | http://localhost:8082 | Cards grid, decks list; click a card for details, a deck for composition. |
 | **Swagger UI** | http://localhost:8080/swagger-ui.html | Interactive API docs; try `GET /cards`, `GET /decks`. |
 | **Health** | http://localhost:8080/healthcheck | Backend health check. |
-
----
-
-## Tests
-
-Run all project tests the same way as GitHub Actions (no DB):
-
-```bash
-docker compose --profile test build
-```
-
-Per project (from repo root):  
-`docker build -f backend/Dockerfile --target test ./backend` · same for `frontend` with `./frontend` · for scripts: `docker build -f scripts/Dockerfile --target test .`
-
-Details and native runtimes: [docs/CI_AND_TESTS.md](docs/CI_AND_TESTS.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ---
 
@@ -73,30 +51,28 @@ Details and native runtimes: [docs/CI_AND_TESTS.md](docs/CI_AND_TESTS.md) and [d
 
 ---
 
-## Documentation guide
+## Documentation
 
-Use this to find the right doc. All live in **[docs/](docs/)** unless noted.
-
-| When you want to… | Open |
-|-------------------|------|
-| **Get running** — setup, run app, run tests (Docker/Podman) | [SETUP_AND_TESTS](docs/SETUP_AND_TESTS.md) |
+| When you want to… | Doc |
+|-------------------|-----|
+| **Get running** — setup, run app (Docker/Podman) | [SETUP_AND_TESTS](docs/SETUP_AND_TESTS.md) |
+| **Run tests** — per-project, Podman, native, CI | [TESTS](docs/TESTS.md) |
 | **Use the app** — URLs, Swagger, frontend usage | [GETTING_STARTED](docs/GETTING_STARTED.md) |
-| **Work on code** — run backend/frontend locally (no containers) | [DEVELOPMENT](docs/DEVELOPMENT.md) |
+| **Work on code** — backend/frontend locally (no containers) | [DEVELOPMENT](docs/DEVELOPMENT.md) |
 | **Database** — reset, migrate, seed, check data | [DATABASE_MAINTENANCE](docs/DATABASE_MAINTENANCE.md) |
 | **Schema** — migrations, adding tables | [DATABASE_MIGRATIONS](docs/DATABASE_MIGRATIONS.md) |
-| **API** — endpoints, request/response examples | [API_ENDPOINTS](docs/API_ENDPOINTS.md) |
-| **Layout** — where things are in the repo | [PROJECT_STRUCTURE](docs/PROJECT_STRUCTURE.md) |
+| **API** — endpoints, examples | [API_ENDPOINTS](docs/API_ENDPOINTS.md) |
+| **Layout** — repo structure | [PROJECT_STRUCTURE](docs/PROJECT_STRUCTURE.md) |
 | **Problems** — common errors and fixes | [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
 | **Stack** — technologies and tools | [TECHNOLOGY_STACK](docs/TECHNOLOGY_STACK.md) |
-| **CI / tests** — run tests like GitHub Actions | [CI_AND_TESTS](docs/CI_AND_TESTS.md) |
-| **Docs index** — list of all docs | [docs/README](docs/README.md) |
+| **All docs** | [docs/README](docs/README.md) |
 | **License** | [LICENSE](docs/LICENSE.md) |
 
 ---
 
 ## Website preview
 
-Screenshots live in [docs/screenshots/](docs/screenshots/). Preview:
+Screenshots in [docs/screenshots/](docs/screenshots/):
 
 | Page | Preview |
 |------|---------|

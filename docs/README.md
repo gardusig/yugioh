@@ -1,27 +1,24 @@
 # Documentation
 
-This folder contains detailed documentation that was moved from the main README to keep it concise.
+Detailed docs live here; the main [README](../README.md) stays concise and links to these.
 
-## Available Documentation
+## Available docs
 
-- **[SETUP_AND_TESTS.md](./SETUP_AND_TESTS.md)** - Setup from scratch (Docker/Podman), running tests for backend, frontend, scripts
-- **[CI_AND_TESTS.md](./CI_AND_TESTS.md)** - Run the same tests as GitHub Actions (Docker or native)
-- **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Access URLs, services overview, and usage guides
-- **[DATABASE_MAINTENANCE.md](./DATABASE_MAINTENANCE.md)** - Database commands and sample data setup
-- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Local development setup and build instructions
-- **[API_ENDPOINTS.md](./API_ENDPOINTS.md)** - Complete API endpoint documentation with examples
-- **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Detailed project directory structure and file descriptions
-- **[DATABASE_MIGRATIONS.md](./DATABASE_MIGRATIONS.md)** - Database schema, migrations, and data import instructions
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues and solutions
-- **[TECHNOLOGY_STACK.md](./TECHNOLOGY_STACK.md)** - Complete list of technologies and tools used
-- **[LICENSE.md](./LICENSE.md)** - License information
+| Doc | Description |
+|-----|--------------|
+| **[SETUP_AND_TESTS.md](./SETUP_AND_TESTS.md)** | Setup from scratch (Docker/Podman), run the app, install by platform |
+| **[TESTS.md](./TESTS.md)** | Run tests: one command, per-project table, Podman, native, CI |
+| **[GETTING_STARTED.md](./GETTING_STARTED.md)** | Access URLs, services overview, how to use Swagger and frontend |
+| **[DATABASE_MAINTENANCE.md](./DATABASE_MAINTENANCE.md)** | Database commands, reset, seed, check data |
+| **[DEVELOPMENT.md](./DEVELOPMENT.md)** | Run backend/frontend locally (no containers), build commands |
+| **[API_ENDPOINTS.md](./API_ENDPOINTS.md)** | API reference with request/response examples |
+| **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** | Repo layout and file descriptions |
+| **[DATABASE_MIGRATIONS.md](./DATABASE_MIGRATIONS.md)** | Schema, migrations, data import |
+| **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** | Common issues and fixes |
+| **[TECHNOLOGY_STACK.md](./TECHNOLOGY_STACK.md)** | Technologies and tools used |
+| **[LICENSE.md](./LICENSE.md)** | License |
 
 ## Note
 
-**Keep the main README.md concise.** When adding new documentation, consider:
-- Is this essential for getting started? → Keep in main README
-- Is this detailed reference material? → Move to `docs/` folder
-- Is this troubleshooting or advanced usage? → Move to `docs/` folder
-
-This structure helps maintain a clean, scannable main README while preserving all important information in organized documentation files.
+**Keep the main README concise.** New material: getting started → main README; reference / troubleshooting → `docs/`.
 

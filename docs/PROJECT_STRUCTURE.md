@@ -51,8 +51,8 @@
 │   └── deck_cards.csv               # Deck contents (deck_name, card_id, position)
 ├── docs/                            # Documentation (see docs/README.md)
 │   ├── README.md                    # Docs index
-│   ├── CI_AND_TESTS.md              # Run tests like CI
-│   ├── SETUP_AND_TESTS.md           # Setup and test instructions
+│   ├── TESTS.md                     # Run tests (per-project, Podman, native, CI)
+│   ├── SETUP_AND_TESTS.md           # Setup and run app (Docker/Podman)
 │   ├── GETTING_STARTED.md           # App usage
 │   ├── DEVELOPMENT.md               # Local development
 │   ├── DATABASE_*.md                # DB maintenance and migrations

@@ -1,5 +1,5 @@
 # CI: run unit tests for backend, frontend, and scripts using each project's Docker test image.
-# To run the same batch locally: see docs/CI_AND_TESTS.md
+# To run the same batch locally: see docs/TESTS.md
 
 name: CI
 
