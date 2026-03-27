@@ -23,13 +23,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/cards")
 @CrossOrigin(origins = "*")
-@Tag(name = "Cards", description = "API for browsing all 900 cards from Yu-Gi-Oh! The Sacred Cards")
+@Tag(name = "Cards", description = "API for browsing cards")
 public class CardController {
     @Autowired
     private CardService cardService;
 
     @GetMapping
-    @Operation(summary = "List all cards", description = "Get a paginated list of all cards (001-900). Use either 'page' or 'firstCard' query parameter.")
+    @Operation(summary = "List all cards", description = "Get a paginated list of all cards. Use either 'page' or 'firstCard' query parameter.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successful response",
             content = @Content(schema = @Schema(implementation = Map.class)))
@@ -39,7 +39,7 @@ public class CardController {
             @RequestParam(required = false) Integer page,
             @Parameter(description = "Number of cards per page", example = "24")
             @RequestParam(defaultValue = "24") int limit,
-            @Parameter(description = "First card ID to start from (1-900). Takes precedence over page.", example = "1")
+            @Parameter(description = "First card ID to start from. Takes precedence over page.", example = "1")
             @RequestParam(required = false) Integer firstCard) {
 
         // When firstCard is provided, filter from that card and use page 1 of filtered results
@@ -79,7 +79,7 @@ public class CardController {
         @ApiResponse(responseCode = "404", description = "Card not found")
     })
     public ResponseEntity<Card> getCardById(
-            @Parameter(description = "Card ID (001-900)", required = true)
+            @Parameter(description = "Card ID", required = true)
             @PathVariable Integer id) {
 
         Optional<Card> card = cardService.getCardById(id);

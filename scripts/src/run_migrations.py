@@ -206,7 +206,7 @@ def main():
         "--migration-dir",
         type=str,
         default="migrations",
-        help="Path to migration directory (default: migrations)",
+        help="Path to migration directory relative to project root (default: migrations)",
     )
     parser.add_argument(
         "--dry-run",
@@ -215,10 +215,12 @@ def main():
     )
     args = parser.parse_args()
 
-    # Resolve migration directory path
-    # Script is in src/, but migrations/ is in scripts root, so go up one level
-    scripts_root = Path(__file__).parent.parent
-    migration_dir = (scripts_root / args.migration_dir).resolve()
+    # Resolve migration directory: default is project_root/migrations (repo root)
+    # Script is at scripts/src/run_migrations.py -> scripts_root = scripts/, project_root = repo root
+    scripts_root = Path(__file__).resolve().parent.parent
+    project_root = scripts_root.parent
+    migration_dir_arg = Path(args.migration_dir)
+    migration_dir = migration_dir_arg.resolve() if migration_dir_arg.is_absolute() else (project_root / args.migration_dir).resolve()
 
     if not migration_dir.exists():
         print(f"[ERROR] Migration directory not found: {migration_dir}", file=sys.stderr)

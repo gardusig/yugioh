@@ -10,11 +10,7 @@ ignore = ["E501"]
 
 [tool.coverage.run]
 branch = true
-# The crawler performs live HTTP requests; we keep it outside the coverage target.
-# Setup script is just a wrapper, not unit tested
 omit = [
-  "src/crawl_cards.py",      # Makes live HTTP requests
-  "src/gather_card_data.py", # Makes live HTTP requests
-  "src/setup.py",            # Wrapper script, not unit tested
+  "src/setup.py",  # Wrapper script, not unit tested
 ]
 

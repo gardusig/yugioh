@@ -1,114 +1,85 @@
-# Scripts Directory
+# Scripts — Data Management
 
-Simple scripts for retrieving card data and inserting into the database.
+Python tools for database setup and seeding. **Stack:** Python 3.11, psycopg2.
 
-## Directory Structure
+## Focus
 
-```
-scripts/
-├── src/                     # Source scripts
-│   ├── crawl_cards.py      # Crawl card data from yugioh.fandom.com (inserts to DB)
-│   ├── gather_card_data.py # Gather card data and save to CSV
-│   ├── check_db.py         # Check database state
-│   ├── db_manager.py        # Database management utilities
-│   ├── run_migrations.py   # Run database migrations
-│   └── setup.py             # Smart database setup (main entry point)
-├── data/                    # Data files
-│   └── card_list.csv       # Card names CSV (001-900)
-├── migrations/             # Database migration SQL files
-│   └── V1__initial_schema.sql
-└── tests/                  # Unit tests
-    └── test_db_manager.py
-```
+- **Migrations** (schema) then **seed** from `data/*.csv` (no network required)
+- DB maintenance: reset, migrate, seed, check (counts + validation)
 
-## Quick Start
+## First-Time Setup
 
-### Setup Database
+From the **project root**:
 
 ```bash
-cd scripts
-DB_HOST=localhost DB_PORT=5432 python3 src/setup.py
+docker compose up --build
 ```
 
-This will:
-- Check if database is empty
-- Run migrations if needed
-- Seed first 100 cards if needed
+*With Podman: `podman compose -f docker-compose.yml up --build`.*
+
+The `scripts` service runs **migrations** then **seed** before the backend starts.
+
+**Run on-demand (order: reset → migrate → seed):**
+
+```bash
+# Full clean setup (reset schema → migrations → seed)
+docker compose run --rm scripts scripts/src/db_manager.py reset-and-seed
+
+# Or step by step:
+docker compose run --rm scripts scripts/src/db_manager.py reset-db   # clean schema
+docker compose run --rm scripts scripts/src/db_manager.py migrate    # run migrations
+docker compose run --rm scripts scripts/src/db_manager.py seed       # load data/*.csv
+
+# Counts + validation (alerts if data missing or mismatched)
+docker compose run --rm scripts scripts/src/check_db.py
+```
+
+*With Podman: `podman compose -f docker-compose.yml run --rm scripts ...`.*
+
+**One-off setup (if DB empty):** `docker compose run --rm scripts` runs `setup.py` (migrate + seed when needed).
+
+## Dockerfile
+
+Single file, two stages (build from **repo root**):
+
+| Stage | Purpose |
+|-------|---------|
+| `test` | Unit tests: `docker build -f scripts/Dockerfile --target test .` |
+| default | Run scripts (migrations + seed): used by `docker compose` for the scripts service |
 
 ## Main Scripts
 
-### `src/setup.py`
-Smart database setup that checks state and only runs what's needed.
+| Script | Purpose |
+|--------|---------|
+| `src/db_manager.py` | **reset-db** (clean schema), **migrate** (run SQL), **seed** (load CSV), **reset-and-seed** (all three), status, clear-all, clear-table |
+| `src/setup.py` | If DB empty: run migrations then seed; if tables empty: seed only |
+| `src/seed_from_csv.py` | Seed from `data/*.csv` (cards, decks, deck_cards) |
+| `src/run_migrations.py` | Run SQL migrations from project root `migrations/` |
+| `src/check_db.py` | Exit 0/1/2 (empty / needs seed / ready); when ready, prints counts and validation alerts |
+| `src/generate_cards_csv.py` | Generate `data/cards.csv` (`--fetch-images`, `--fill-missing-images`, `--verify-images`) |
 
-```bash
-python3 src/setup.py
-python3 src/setup.py --seed-range 1 100
-```
+## Environment Variables
 
-### `src/crawl_cards.py`
-Crawl card data from yugioh.fandom.com and insert into database.
+| Variable | Default |
+|----------|---------|
+| `DB_HOST` | localhost |
+| `DB_PORT` | 5432 |
+| `DB_NAME` | yugioh_db |
+| `DB_USER` | yugioh_user |
+| `DB_PASSWORD` | yugioh_password |
 
-```bash
-python3 src/crawl_cards.py --start 1 --end 100 --workers 10
-```
+## Data Files
 
-### `src/gather_card_data.py`
-Gather card data from yugioh.fandom.com and save to CSV file (for database insertion).
+- `data/card_list.csv` — Card IDs and names
+- `data/cards.csv` — Full card data (from `generate_cards_csv.py`)
+- `data/decks.csv` — Deck metadata
+- `data/deck_cards.csv` — Deck contents
 
-```bash
-python3 src/gather_card_data.py
-python3 src/gather_card_data.py --start 1 --end 100 --workers 10
-```
+See [data/README.md](../data/README.md) for CSV formats.
 
-This script:
-- Loads card names from `data/card_list.csv` (in project root)
-- Fetches complete card data from yugioh.fandom.com
-- Saves all card data to `data/cards_data.csv` (in project root)
-- The output CSV can be used for bulk database insertion
-
-### `src/run_migrations.py`
-Run database migrations from `migrations/` directory.
-
-```bash
-python3 src/run_migrations.py
-```
-
-### `src/check_db.py`
-Check database state:
-- Exit 0: Database is empty (needs migrations)
-- Exit 1: Database has tables but no cards (needs seeding)
-- Exit 2: Database is populated (ready)
-
-### `src/db_manager.py`
-Database management utilities for resetting, clearing, and seeding.
-
-```bash
-python3 src/db_manager.py reset-db
-python3 src/db_manager.py clear-all
-python3 src/db_manager.py seed --cards
-```
-
-### Running Tests
+## Tests
 
 ```bash
 cd scripts
 pytest
 ```
-
-Tests are located in `tests/` and can import modules from `src/` using `from src import <module>`.
-
-## Environment Variables
-
-All scripts use these environment variables (with defaults):
-- `DB_HOST` (default: localhost)
-- `DB_PORT` (default: 5432)
-- `DB_NAME` (default: yugioh_db)
-- `DB_USER` (default: yugioh_user)
-- `DB_PASSWORD` (default: yugioh_password)
-
-## Data Files
-
-All data files are located in the `data/` directory at the project root (not in `scripts/data/`):
-
-- `data/card_list.csv` - Contains all 900 card IDs and names from Yu-Gi-Oh! The Sacred Cards
-- `data/cards_data.csv` - Complete card data CSV (generated by `gather_card_data.py`) with all fields needed for database insertion

@@ -1,32 +1,54 @@
 # Database Maintenance & Sample Data
 
-Flyway now creates only the schema (`V1__initial_schema.sql`). All data management happens through `scripts/src/db_manager.py`. This keeps migrations fast and lets you decide when/how to populate the database.
+The scripts service runs **migrations** first (create/update tables), then **seed** from `data/*.csv`. All DB control is via `scripts/src/db_manager.py` or `scripts/src/setup.py`.
 
-## Step-by-step: Clear DB and Load the First 10 Cards (001-010)
+## Order: reset → migrate → seed
+
+1. **reset-db** — Drop and recreate the schema (clean everything). No tables left.
+2. **migrate** — Run SQL migrations (create/update tables). No data.
+3. **seed** — Load data from `data/*.csv` (cards, decks, deck_cards).
+
+Use **reset-and-seed** to do all three in one go.
+
+## Step-by-step: full clean setup
 
 ```bash
-# 1. Start PostgreSQL only (if it is not already running)
-docker-compose up -d database
+# 1. Start PostgreSQL (if not already running)
+docker compose up -d database
 
-# 2. Clear all data but keep the tables
-docker-compose run --rm scripts python3 src/db_manager.py clear-all
+# 2. Reset, run migrations, and seed (one command)
+docker compose run --rm scripts scripts/src/db_manager.py reset-and-seed
 
-# 3. Seed the first 10 iconic cards
-docker-compose run --rm scripts python3 src/db_manager.py seed --cards
+# 3. Check counts and data (numbers + validation queries, alerts if issues)
+docker compose run --rm scripts scripts/src/check_db.py
 ```
 
-## Useful Commands
+*With Podman: use `podman compose -f docker-compose.yml` instead of `docker compose`.*
 
-> ℹ️ Run `docker-compose up -d database` first so the scripts can connect to Postgres.
+Or run the steps separately:
+
+```bash
+docker compose run --rm scripts scripts/src/db_manager.py reset-db
+docker compose run --rm scripts scripts/src/db_manager.py migrate
+docker compose run --rm scripts scripts/src/db_manager.py seed
+```
+
+## Commands
+
+> Run `docker compose up -d database` first so scripts can connect to Postgres. With Podman, use `podman compose -f docker-compose.yml up -d database`.
 
 | Goal | Command |
 |------|---------|
-| Drop & recreate entire schema (removes everything) | `docker-compose run --rm scripts python3 src/db_manager.py reset-db` |
-| Clear all rows but keep tables | `docker-compose run --rm scripts python3 src/db_manager.py clear-all` |
-| Clear a single table | `docker-compose run --rm scripts python3 src/db_manager.py clear-table cards` (or `decks`, `deck_cards`) |
-| Seed the sample 10 iconic cards + 2 decks | `docker-compose run --rm scripts python3 src/db_manager.py seed` |
-| Seed only cards | `docker-compose run --rm scripts python3 src/db_manager.py seed --cards` |
-| Seed only decks (expects matching card IDs to exist) | `docker-compose run --rm scripts python3 src/db_manager.py seed --decks` |
+| **Clean everything and reseed** (reset → migrate → seed) | `docker compose run --rm scripts scripts/src/db_manager.py reset-and-seed` |
+| **Clean schema only** (drop schema; run migrate next) | `docker compose run --rm scripts scripts/src/db_manager.py reset-db` |
+| **Run migrations only** (create/update tables) | `docker compose run --rm scripts scripts/src/db_manager.py migrate` |
+| **Seed from CSV only** | `docker compose run --rm scripts scripts/src/db_manager.py seed` |
+| **Counts + validation** (cards/decks numbers, missing data alerts) | `docker compose run --rm scripts scripts/src/check_db.py` |
+| Table counts only | `docker compose run --rm scripts scripts/src/db_manager.py status` |
+| Truncate all tables (keep schema) | `docker compose run --rm scripts scripts/src/db_manager.py clear-all` |
+| Truncate one table | `docker compose run --rm scripts scripts/src/db_manager.py clear-table cards` |
 
-To generate larger SQL imports (e.g., all 900 cards), run `crawl_cards.py` to produce an export, then pipe it into `psql` or adapt the output inside `db_manager.py`. See `scripts/README.md` for details.
+**check_db** prints: card/deck/deck_cards counts, card ID range, expected rows from `data/cards.csv` (if present), and validation (missing name/type, missing image, broken deck_cards references). It alerts when counts or data don’t match expectations.
+
+To add more cards, edit `data/card_list.csv`, run `generate_cards_csv.py`, then `seed`. See `data/README.md`.
 

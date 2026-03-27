@@ -13,4 +13,8 @@ import java.util.List;
 public interface DeckCardRepository extends JpaRepository<DeckCard, DeckCardId> {
     @Query("SELECT dc.cardId FROM DeckCard dc WHERE dc.deckId = :deckId ORDER BY dc.position")
     List<Integer> findCardIdsByDeckId(@Param("deckId") Integer deckId);
+
+    long countByDeckId(Integer deckId);
+
+    long countByDeckIdAndCardId(Integer deckId, Integer cardId);
 }

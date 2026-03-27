@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Card3D from '../components/Card3D'
+import CardDetailModal from '../components/CardDetailModal'
 import { fetchCards as fetchCardsApi } from '../api/cardApi'
 
 function Cards() {
@@ -8,6 +9,7 @@ function Cards() {
   const [cards, setCards] = useState([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState(null)
+  const [selectedCard, setSelectedCard] = useState(null)
 
   // Read pagination params from URL
   const pageParam = searchParams.get('page')
@@ -56,11 +58,15 @@ function Cards() {
     <div>
       <h1 className="text-5xl font-bold mb-8 text-center yugioh-text-glow text-yugioh-accent">All Cards</h1>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 justify-items-center">
         {cards.map((card) => (
-          <Card3D key={card.id} card={card} />
+          <Card3D key={card.id} card={card} onClick={() => setSelectedCard(card)} />
         ))}
       </div>
+
+      {selectedCard && (
+        <CardDetailModal card={selectedCard} onClose={() => setSelectedCard(null)} />
+      )}
 
       {pagination && (
         <div className="flex justify-center items-center gap-4 mt-8">

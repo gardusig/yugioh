@@ -1,72 +1,81 @@
-# Yu-Gi-Oh! The Sacred Cards
+# Yu-Gi-Oh! Deck Editor
 
-![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white)    ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)
-
-![React 18.2](https://img.shields.io/badge/React%2018.2-61DAFB?logo=react&logoColor=black)  ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
-
+![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?logo=openjdk&logoColor=white) ![Backend Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)  
+![React 18.2](https://img.shields.io/badge/React%2018.2-61DAFB?logo=react&logoColor=black) ![Frontend Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)  
 ![Python 3.9](https://img.shields.io/badge/Python%203.9-3776AB?logo=python&logoColor=white) ![Scripts Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)
 
+Full-stack app for browsing cards and building decks: **Spring Boot** API, **PostgreSQL**, **React** frontend, **Python** scripts for data. Everything runs with **Docker** (or Podman). You get card browsing with pagination, deck list and composition (40 cards), card details, and Swagger API docs; the DB can be reset, migrated, and seeded from CSV.
 
+**Setup:** For what to install (Docker, Podman, macOS/Homebrew, etc.), see **[Setup guide](docs/SETUP_AND_TESTS.md)**.
 
+---
 
+## Quick start
 
+1. **Prereqs:** Docker + Compose — see [Setup guide](docs/SETUP_AND_TESTS.md) for install steps.
+2. **Run** (from repo root):
+   ```bash
+   docker compose up --build
+   ```
+3. **Open:**
 
+   | Service | URL |
+   |---------|-----|
+   | **Frontend** | http://localhost:8082 |
+   | **Swagger UI** | http://localhost:8080/swagger-ui.html |
+   | **Health** | http://localhost:8080/healthcheck |
 
-A full-stack web application for browsing all 900 cards and character decks from **Yu-Gi-Oh! The Sacred Cards**. Built with **Java Spring Boot** backend, **PostgreSQL** database, a modern **React + Tailwind CSS** frontend, and **Python scripts** for data management, all containerized with **Docker**.
+   *First run runs migrations and seeds the DB from CSV automatically.*
 
-## Features
+4. **Tests** (no DB): `docker compose --profile test build` — see [Tests](docs/TESTS.md) for per-project commands and Podman.
 
-- **Card Browsing**: Browse Yu-Gi-Oh! The Sacred Cards data with pagination
-- **Deck Viewing**: View character decks with detailed information
-- **Card Details**: View complete card information
-- **Deck Details**: View full deck compositions with all 40 cards
-- **Pagination**: Efficient pagination for both cards and decks
-- **Swagger/OpenAPI**: Interactive API documentation with Swagger UI
-- **Scriptable Data Management**: Reset, clear, and reseed the database
+---
 
-## Prerequisites
+## Run & links
 
-- **Docker Desktop** - Required for running the application (all services are containerized)
-- **OpenJDK 21+** (optional) - For local backend development (Eclipse Temurin recommended)
-- **Node.js 20+** (optional) - For local frontend development
-- **npm** (optional) - For local frontend development
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Frontend** | http://localhost:8082 | Cards grid, decks list; click a card for details, a deck for composition. |
+| **Swagger UI** | http://localhost:8080/swagger-ui.html | Interactive API docs; try `GET /cards`, `GET /decks`. |
+| **Health** | http://localhost:8080/healthcheck | Backend health check. |
 
-**Note**: The backend uses Gradle wrapper (`gradlew`), so Gradle doesn't need to be installed separately. The wrapper will download Gradle automatically on first use.
+---
 
-## Quick Start
+## Per-project
 
-### 1. Start the Application (all services)
+| Project | Dockerfile | README |
+|---------|------------|--------|
+| Backend | [backend/Dockerfile](backend/Dockerfile) | [backend/README.md](backend/README.md) |
+| Frontend | [frontend/Dockerfile](frontend/Dockerfile) | [frontend/README.md](frontend/README.md) |
+| Scripts | [scripts/Dockerfile](scripts/Dockerfile) (stages: test, default; build from repo root) | [scripts/README.md](scripts/README.md) |
 
-```bash
-# Start all services (database, API, frontend)
-docker-compose up --build
-
-# Stop services
-docker-compose down
-```
-
-### 2. Start only the Database (for maintenance)
-
-```bash
-# Launch PostgreSQL alone (useful for running scripts)
-docker-compose up -d database
-```
-
-### 3. Access the Application
-
-- **Frontend**: http://localhost:8082
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **API Docs**: http://localhost:8080/api-docs
-- **Health Check**: http://localhost:8080/healthcheck
+---
 
 ## Documentation
 
-- **[Getting Started](./docs/GETTING_STARTED.md)** - Access URLs, services overview, and usage guides
-- **[Database Maintenance](./docs/DATABASE_MAINTENANCE.md)** - Database commands and sample data setup
-- **[Development](./docs/DEVELOPMENT.md)** - Local development setup and build instructions
-- **[API Endpoints](./docs/API_ENDPOINTS.md)** - Complete API documentation with examples
-- **[Project Structure](./docs/PROJECT_STRUCTURE.md)** - Directory structure and file descriptions
-- **[Database Migrations](./docs/DATABASE_MIGRATIONS.md)** - Schema, migrations, and data import instructions
-- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Technology Stack](./docs/TECHNOLOGY_STACK.md)** - Complete list of technologies used
-- **[License](./docs/LICENSE.md)** - License information
+| When you want to… | Doc |
+|-------------------|-----|
+| **Get running** — setup, run app (Docker/Podman) | [SETUP_AND_TESTS](docs/SETUP_AND_TESTS.md) |
+| **Run tests** — per-project, Podman, native, CI | [TESTS](docs/TESTS.md) |
+| **Use the app** — URLs, Swagger, frontend usage | [GETTING_STARTED](docs/GETTING_STARTED.md) |
+| **Work on code** — backend/frontend locally (no containers) | [DEVELOPMENT](docs/DEVELOPMENT.md) |
+| **Database** — reset, migrate, seed, check data | [DATABASE_MAINTENANCE](docs/DATABASE_MAINTENANCE.md) |
+| **Schema** — migrations, adding tables | [DATABASE_MIGRATIONS](docs/DATABASE_MIGRATIONS.md) |
+| **API** — endpoints, examples | [API_ENDPOINTS](docs/API_ENDPOINTS.md) |
+| **Layout** — repo structure | [PROJECT_STRUCTURE](docs/PROJECT_STRUCTURE.md) |
+| **Problems** — common errors and fixes | [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
+| **Stack** — technologies and tools | [TECHNOLOGY_STACK](docs/TECHNOLOGY_STACK.md) |
+| **License** | [LICENSE](docs/LICENSE.md) |
+
+---
+
+## Website preview
+
+Screenshots in [docs/screenshots/](docs/screenshots/):
+
+| Page | Preview |
+|------|---------|
+| Cards | ![Cards page](docs/screenshots/cards-page.png) |
+| Card detail | ![Card detail](docs/screenshots/card-detail.png) |
+| Decks list | ![Decks list](docs/screenshots/decks-list.png) |
+| Deck composition | ![Deck composition](docs/screenshots/deck-details.png) |

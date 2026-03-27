@@ -1,23 +1,23 @@
 # Development
 
-## Local CI Checks
+**Run the app and tests in containers:** See [SETUP_AND_TESTS.md](SETUP_AND_TESTS.md) (setup, run app) and [TESTS.md](TESTS.md) (run tests, per-project, Podman, native).
 
-Before pushing code, you can run the same checks that GitHub Actions will run:
+The sections below are for **optional** local development — running backend or frontend on the host **without** Docker/Podman.
 
-```bash
-# Run all CI checks locally and update README badges
-./ci-local.sh
-```
+## Quick reference
 
-This script will:
-- **Backend**: Check for unused imports (Spotless Gradle plugin) and run unit tests (using Mockito mocks, no database required)
-- **Frontend**: Install dependencies, build check (Vite), run unit tests (Vitest), and check for unused dependencies
-- **Scripts**: Run Python unit tests with coverage
-- **Badges**: Automatically update README badges with current test status and coverage percentages (green if tests pass, red if they fail)
+| Task | Command | URL |
+|------|---------|-----|
+| **Run backend** | `cd backend && ./gradlew bootRun` | http://localhost:8080 |
+| **Run frontend** | `cd frontend && npm run dev` | http://localhost:3000 |
+| **Build backend** | `cd backend && ./gradlew clean build` | JAR in `build/libs/` |
+| **Build frontend** | `cd frontend && npm run build` | Output in `frontend/dist/` |
 
-**Note**: All tests use mocks and don't require a running database. The README badges will be updated with the actual coverage percentages from test results (e.g., 60% shown as green if tests pass).
+*Prereqs:* PostgreSQL running for backend; Node/npm for frontend. Frontend proxies `/api` to backend.
 
-## Run Backend Locally
+---
+
+## Run backend locally
 
 ```bash
 cd backend
@@ -28,7 +28,7 @@ The API will be available at http://localhost:8080
 
 **Note**: Make sure PostgreSQL is running and accessible. Update `application.properties` with your database credentials if needed.
 
-## Run Frontend Locally
+## Run frontend locally
 
 ```bash
 cd frontend
@@ -40,7 +40,7 @@ The frontend will be available at http://localhost:3000 (Vite default port)
 
 **Note**: The frontend will proxy API requests to `http://localhost:8080` as configured in `vite.config.js`.
 
-## Build Backend
+## Build backend
 
 ```bash
 cd backend
@@ -49,7 +49,7 @@ cd backend
 
 The JAR file will be created in `build/libs/yugioh-api-1.0.0.jar`
 
-## Build Frontend
+## Build frontend
 
 ```bash
 cd frontend

@@ -1,0 +1,16 @@
+name,description,character_name,archetype,max_cost,is_preset
+Legend of Blue Eyes,Dragon-heavy deck built around Blue-Eyes and overwhelming attack power.,Seto Kaiba,Dragon,250,true
+Heart of the Cards,Balanced deck featuring spellcasters and iconic monsters.,Yugi Muto,Spellcaster,230,true
+Exodia Collector,Deck focused on assembling the five Exodia pieces.,Yugi Muto,Spellcaster,200,true
+Dragon Rampage,Aggressive dragon deck with high-level monsters.,Kaiba,Dragon,240,true
+Red-Eyes Destruction,Red-Eyes Black Dragon and dragon support.,Joey Wheeler,Dragon,235,true
+Egyptian Gods,Deck built around the three Egyptian God cards.,Yugi Muto,Divine,260,true
+Fiend Legion,Fiends and dark monsters led by Summoned Skull.,Bakura,Fiend,220,true
+Insect Swarm,Insect-type monsters and swarm tactics.,Weevil Underwood,Insect,200,true
+Warrior's Path,Warriors and battle-focused monsters.,Joey Wheeler,Warrior,210,true
+Spellcaster Alliance,Spellcasters with Dark Magician at the core.,Yugi Muto,Spellcaster,225,true
+Zombie Horde,Undead monsters and graveyard recursion.,Bakura,Zombie,195,true
+Machine Overdrive,Machine-type monsters and mechanical power.,Mokuba,Machine,215,true
+Ocean Depths,Sea creatures and water monsters.,Mako Tsunami,Aqua,205,true
+Beast Kingdom,Beast and Beast-Warrior monsters.,Mai Valentine,Beast,200,true
+Starter Deck,Basic deck for beginners with versatile monsters.,,Mixed,180,false

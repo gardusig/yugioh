@@ -23,7 +23,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/decks")
 @CrossOrigin(origins = "*")
-@Tag(name = "Decks", description = "API for browsing character decks and example decks")
+@Tag(name = "Decks", description = "API for browsing and managing decks")
 public class DeckController {
     @Autowired
     private DeckService deckService;
@@ -43,7 +43,7 @@ public class DeckController {
             @RequestParam(required = false) Integer firstDeck,
             @Parameter(description = "Filter by deck archetype")
             @RequestParam(required = false) String archetype,
-            @Parameter(description = "Filter preset decks only")
+            @Parameter(description = "Filter preset decks")
             @RequestParam(required = false) Boolean preset) {
 
         // Calculate page from firstDeck if provided, otherwise use page (default to 1)

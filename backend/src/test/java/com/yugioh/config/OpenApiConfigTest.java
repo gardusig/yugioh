@@ -27,12 +27,12 @@ class OpenApiConfigTest {
 
         Info info = openAPI.getInfo();
         assertThat(info).isNotNull();
-        assertThat(info.getTitle()).isEqualTo("Yu-Gi-Oh! The Sacred Cards API");
+        assertThat(info.getTitle()).isEqualTo("Yu-Gi-Oh! Deck Editor API");
         assertThat(info.getVersion()).isEqualTo("1.0.0");
-        assertThat(info.getDescription()).contains("API for browsing all 900 cards");
+        assertThat(info.getDescription()).contains("API for browsing cards");
         assertThat(info.getContact()).isNotNull();
-        assertThat(info.getContact().getName()).isEqualTo("Yu-Gi-Oh! API");
-        assertThat(info.getContact().getEmail()).isEqualTo("api@yugioh.com");
+        assertThat(info.getContact().getName()).isEqualTo("Gustavo Gardusi");
+        assertThat(info.getContact().getEmail()).isEqualTo("gustavo.gardusi@gmail.com");
 
         List<Server> servers = openAPI.getServers();
         assertThat(servers).isNotNull();

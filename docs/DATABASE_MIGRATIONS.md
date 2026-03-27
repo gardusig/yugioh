@@ -1,24 +1,18 @@
 # Database Migrations
 
-Flyway automatically runs SQL files inside `backend/src/main/resources/db/migration/`. At the moment only the schema migration is maintained in Git:
+Migrations are run by the **scripts** service using Flyway-style SQL files in `migrations/` (project root):
 
 - `V1__initial_schema.sql` — creates `cards`, `decks`, and `deck_cards`
 
-All data seeding is handled manually through `scripts/src/db_manager.py` to avoid long Flyway runtimes and to keep business data outside of migrations.
+The scripts service runs at startup when you bring the stack up (e.g. `docker compose up --build`): first **migrations** (create/update tables), then **seed** from `data/*.csv` via `scripts/src/seed_from_csv.py`. For manual control use `db_manager.py reset-db`, then `migrate`, then `seed` (or `reset-and-seed` for all three). With Podman: `podman compose -f docker-compose.yml up --build`.
 
-## Generating / Importing Card Data
+## Adding Card Data
 
-If you need a large batch of card inserts:
-
-1. Run the crawler to generate SQL (see `scripts/README.md` for options).
-2. Pipe the output directly into `psql`, or copy the rows you want into `db_manager.py` and re-run the `seed` command.
-
-Example (Docker + psql):
+Edit `data/card_list.csv` to add cards, then run:
 
 ```bash
-docker-compose run --rm scripts python3 src/crawl_cards.py --start 1 --end 50 > cards.sql
-cat cards.sql | docker exec -i yugioh-database psql -U yugioh_user -d yugioh_db
-rm cards.sql
+python3 scripts/src/generate_cards_csv.py
+python3 scripts/src/seed_from_csv.py
 ```
 
 ## Database Schema
@@ -26,7 +20,7 @@ rm cards.sql
 The application uses PostgreSQL with the following tables:
 
 ### Cards Table
-- `id` - Card number (001-900)
+- `id` - Card ID
 - `name` - Card name
 - `description` - Card description
 - `image` - Card image URL
@@ -43,10 +37,10 @@ The application uses PostgreSQL with the following tables:
 - `id` - Deck ID
 - `name` - Deck name
 - `description` - Deck description
-- `character_name` - Character who uses this deck (e.g., "Weevil Underwood", "Mako Tsunami")
+- `character_name` - Deck owner (optional)
 - `archetype` - Deck archetype/style (e.g., "Insect", "Fish", "Dragon")
 - `max_cost` - Maximum total cost for the deck
-- `is_preset` - Whether this is a preset character deck
+- `is_preset` - Whether this is a preset deck
 
 ### Deck Cards Table
 - `deck_id` - Reference to deck

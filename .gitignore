@@ -1,0 +1,29 @@
+# Dependencies (root and any nested)
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+*.tmp
+*.temp
+.cache/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Optional: root venv if someone runs Python from repo root
+.venv/
+venv/
+env/
