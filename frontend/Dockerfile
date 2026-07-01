@@ -1,7 +1,8 @@
 # Yu-Gi-Oh! Deck Editor — Frontend (Node 20, React, Vite)
 # Build from frontend/. Stages: test (unit tests), builder (dist), default (nginx serve).
-#   Tests:  docker build --target test .
-#   Run:    docker build .
+#   Unit (CI/local):  ./scripts/test/unit.sh  → docker build --target test .
+#   Integration:     ./scripts/test/integration.sh → docker build --target builder .
+#   Run:              docker build .
 
 # Stage: test — unit tests
 FROM node:20-alpine AS test

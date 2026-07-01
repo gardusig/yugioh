@@ -1,7 +1,7 @@
 # Yu-Gi-Oh! Deck Editor — Scripts (Python 3.11)
 # Build from repo root. Stages: test (unit tests), default (run migrations + seed).
-#   Tests:  docker build -f scripts/Dockerfile --target test .
-#   Run:    docker build -f scripts/Dockerfile .   (used by docker compose)
+#   Unit (CI/local):  ./scripts/test/unit.sh  → docker build -f scripts/Dockerfile --target test .
+#   Run:              docker build -f scripts/Dockerfile .
 
 # Stage: test — run unit tests (no DB)
 FROM python:3.11-slim AS test

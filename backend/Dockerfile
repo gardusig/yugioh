@@ -1,7 +1,8 @@
 # Yu-Gi-Oh! Deck Editor — Backend (Java 21, Spring Boot)
 # Build from backend/. Stages: test (unit tests), builder (JAR), default (run app).
-#   Tests:  docker build --target test .
-#   Run:    docker build .
+#   Unit (CI/local):  ./scripts/test/unit.sh  → docker build --target test .
+#   Integration:     ./scripts/test/integration.sh → docker build --target builder .
+#   Run app:          docker build .
 
 # Stage: test — unit tests (no DB)
 FROM gradle:8.5-jdk21 AS test
